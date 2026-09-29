@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
+const { authenticate } = require('../middleware/authMiddleware');
 
 const parserDir = path.join(__dirname, '../parser');
 const ASK_SCRIPT = path.join(parserDir, 'ask.py');
@@ -15,15 +16,9 @@ const pythonExecutable = fs.existsSync(venvPythonPath) ? venvPythonPath : 'pytho
 /**
  * POST /api/qa/ask
  * body: { question, kbId }
- * Both are required.
- *
- * Runs a single python process (ask.py) which:
- *   1. retrieves relevant chunks from the KB table
- *   2. builds the prompt
- *   3. calls the LLM
- *   4. returns { success, answer, sources } as JSON
+ * Requires authentication.
  */
-router.post('/ask', async (req, res) => {
+router.post('/ask', authenticate, async (req, res) => {
     const { question, kbId } = req.body;
 
     if (!question || !question.trim()) {
@@ -48,7 +43,6 @@ router.post('/ask', async (req, res) => {
             PYTHONIOENCODING: 'utf-8',
             PYTHONUNBUFFERED: '1',
             PYTHONHASHSEED: '0',
-            // Skip HuggingFace network checks on every spawn
             HF_HUB_OFFLINE: '1',
             TRANSFORMERS_OFFLINE: '1',
             KB_TABLE: kbTable,
@@ -106,7 +100,6 @@ router.post('/ask', async (req, res) => {
         }
 
         try {
-            // stdout should contain exactly one JSON line
             const jsonMatch = stdout.match(/\{[\s\S]*\}/);
             if (!jsonMatch) {
                 console.error('[JSON Parse Error] No JSON found in stdout');
@@ -159,7 +152,6 @@ router.post('/ask', async (req, res) => {
         }
     });
 
-    // Feed the question via stdin (ask.py accepts argv[1] or stdin)
     askProcess.stdin.write(question + '\n');
     askProcess.stdin.end();
 });

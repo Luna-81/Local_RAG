@@ -10,6 +10,7 @@ const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
 const FileListModel = require('../models/FileListModel');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
+const { getUserId } = require('../utils/reqUser');
 
 // Upload / parser directories
 const uploadDir = path.join(__dirname, '../../data/raw_pdfs');
@@ -40,10 +41,6 @@ const upload = multer({
 // In-memory processing status
 // Map<filename, { status: 'processing' | 'completed' | 'failed', progress: number }>
 let processingStatusMap = new Map();
-
-// Extract current user id (compatible with different auth middleware shapes)
-const getUserId = (req) =>
-    (req.user && (req.user.id || req.user.userId)) || 1;
 
 // ============================================================
 // GET /api/documents?kbId=1  - list files in a KB
