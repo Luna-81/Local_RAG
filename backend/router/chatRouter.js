@@ -3,13 +3,13 @@ const express = require('express');
 const ConversationModel = require('../models/ConversationModel');
 const QAStatsModel = require('../models/QAStatsModel');
 const { authenticate } = require('../middleware/authMiddleware');
+const { getUserId } = require('../utils/reqUser');
 
 const router = express.Router();
 
 // All chat routes require a valid JWT.
 router.use(authenticate);
 
-const getUserId = (req) => (req.user && req.user.id ? req.user.id : 'anonymous');
 
 /**
  * GET /api/chat/conversations?kbId=1
