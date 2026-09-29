@@ -1,7 +1,7 @@
 // src/api/documentsApi.js
 import api from './indexApi';
 
-export const getDocumentsApi = async (kbId) => {
+export const listUploadsApi = async (kbId) => {
     const { data } = await api.get('/documents', {
         params: kbId ? { kbId } : {}
     });

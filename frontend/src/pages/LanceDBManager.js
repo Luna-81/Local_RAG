@@ -1,7 +1,7 @@
 // src/pages/LanceDBManager.js
 import React, { useEffect, useState, useCallback } from 'react';
-import { getVectorIndexStatsApi } from '../api/authApi';
-import { getDocumentsApi } from '../api/knowledgeApi';
+import { getVectorIndexStatsApi } from '../api/lancedbApi';
+import { listVectorDocsApi } from '../api/knowledgeApi';
 import { listKbApi } from '../api/kbApi';
 import KnowledgeMap from '../components/KnowledgeMap';
 import '../css/LanceDBManager.css';
@@ -47,7 +47,7 @@ const LanceDBManager = () => {
       return;
     }
     try {
-      const res = await getDocumentsApi(targetKbId);
+      const res = await listVectorDocsApi(targetKbId);
       if (res.success) setDocs(res.data || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch documents.');

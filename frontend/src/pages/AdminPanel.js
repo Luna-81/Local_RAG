@@ -3,7 +3,7 @@ import {
     getUsersApi, updateUserLevelApi, getQAStatsApi,
     createUserApi, updateUserApi, deleteUserApi,
     getAuditLogsApi, clearAuditLogsApi,
-} from '../api/authApi';
+} from '../api/adminApi';
 import XdpPanel from '../components/XdpPanel';              // ⭐ 新增
 import '../css/AdminPanel.css';
 

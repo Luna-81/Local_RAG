@@ -4,7 +4,7 @@ import DocumentList from '../components/DocumentList';
 import CreateKbModal from '../components/CreateKbModal';
 import ManageKbModal from '../components/ManageKbModal';
 import {
-  getDocumentsApi,
+  listUploadsApi,
   uploadDocumentApi,
   deleteDocumentApi,
 } from '../api/documentsApi';
@@ -57,7 +57,7 @@ function DocumentsPage() {
       }
       try {
         if (showLoading) setLoading(true);
-        const res = await getDocumentsApi(kbId);
+        const res = await listUploadsApi(kbId);
         const docs = res?.documents || [];
         setDocuments(docs);
         return docs;
