@@ -3,63 +3,13 @@ const express = require('express');
 const ConversationModel = require('../models/ConversationModel');
 const QAStatsModel = require('../models/QAStatsModel');
 const { authenticate } = require('../middleware/authMiddleware');
-const axios = require('axios');
 
 const router = express.Router();
-const PYTHON_API = 'http://localhost:5001';
 
+// All chat routes require a valid JWT.
 router.use(authenticate);
 
 const getUserId = (req) => (req.user && req.user.id ? req.user.id : 'anonymous');
-
-/**
- * POST /api/chat/ask
- * LEGACY: superseded by /api/qa/ask.
- * Kept for backward compatibility; not used by the UI.
- */
-router.post('/ask', async (req, res) => {
-    const { question } = req.body;
-    const userId = getUserId(req);
-
-    if (!question || !question.trim()) {
-        return res.status(400).json({ success: false, message: 'Question is required' });
-    }
-
-    console.log(`[Chat] User ${userId}: "${question.substring(0, 50)}..."`);
-
-    try {
-        const response = await axios.post(
-            `${PYTHON_API}/ask`,
-            { question: question.trim() },
-            {
-                timeout: 30000,
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
-
-        if (response.data && response.data.success) {
-            QAStatsModel.record(userId, question);
-            return res.json({
-                success: true,
-                answer: response.data.answer
-            });
-        } else {
-            return res.status(500).json({
-                success: false,
-                message: (response.data && response.data.error) || 'Python service error'
-            });
-        }
-    } catch (error) {
-        console.error('[Chat] Error:', error.message);
-        if (error.code === 'ECONNABORTED') {
-            return res.status(504).json({ success: false, message: 'Request timeout (30s)' });
-        }
-        if (error.code === 'ECONNREFUSED') {
-            return res.status(503).json({ success: false, message: 'Python service unavailable' });
-        }
-        return res.status(500).json({ success: false, message: 'Failed to get answer', error: error.message });
-    }
-});
 
 /**
  * GET /api/chat/conversations?kbId=1
