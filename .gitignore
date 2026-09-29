@@ -1,0 +1,54 @@
+# --- Dependencies ---
+node_modules/
+venv/
+3rdparty/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# --- Large data (regenerated) ---
+data/vector_db/
+data/raw_pdfs/
+data/knowledge_maps/
+data/models/
+backend/data/
+backend/parser/data/
+frontend/uploads/
+
+# --- SQLite runtime state ---
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# --- Build outputs ---
+frontend/build/
+xdp/*.o
+xdp/xdp_guardian
+
+# --- Env / secrets ---
+.env
+.env.local
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# --- Logs ---
+*.log
+
+# --- Docs (not ready to publish) ---
+docs/
+
+# sh
+start_all.sh
+stop_all.sh
+backend/parser/test_all.sh
+backend/parser/test_ask.sh

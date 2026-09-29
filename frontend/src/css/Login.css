@@ -1,0 +1,106 @@
+/* src/css/Login.css */
+
+/* 1. 确保全局框模型计算正常 */
+.login-container *, 
+.login-container *::before, 
+.login-container *::after {
+    box-sizing: border-box;
+}
+
+/* 2. 页面居中容器 */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    width: 100%;
+    padding: 20px;
+}
+
+/* 3. 登录卡片 */
+.login-card {
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #eaeaea;
+}
+
+.login-card h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #1a1a1a;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+/* 4. 表单项强制换行与布局 */
+.form-group {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #4a4a4a;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-group input:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+}
+
+/* 5. 按钮样式 */
+.btn-primary {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #0066cc;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #0052a3;
+}
+
+.btn-primary:disabled {
+    background-color: #a0c4e8;
+    cursor: not-allowed;
+}
+
+/* 6. 错误信息提示 */
+.error-banner {
+    background-color: #fde8e8;
+    color: #e53e3e;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #f8b4b4;
+    text-align: center;
+}

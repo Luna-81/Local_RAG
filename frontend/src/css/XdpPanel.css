@@ -1,0 +1,59 @@
+.xdp-wrap { padding-top: 8px; }
+
+.xdp-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.xdp-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  background: #f8fafc;
+}
+.xdp-card h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.xdp-card p {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.xdp-card p.danger { color: #dc2626; }
+
+.xdp-add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.xdp-add-row input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+.xdp-add-row input:focus { border-color: #2563eb; }
+.xdp-add-row button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+.xdp-add-row button:hover:not(:disabled) { background: #1d4ed8; }
+.xdp-add-row button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+@media (max-width: 720px) {
+  .xdp-cards { grid-template-columns: 1fr 1fr; }
+}

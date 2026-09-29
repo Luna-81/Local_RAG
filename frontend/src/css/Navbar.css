@@ -1,0 +1,72 @@
+/* src/css/Navbar.css */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1e293b; /* 深蓝灰色背景 */
+    padding: 0.75rem 2rem;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand a {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-item {
+    color: #94a3b8; /* 未选中状态为浅灰白色 */
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    color: #38bdf8; /* 高亮选中状态为亮蓝色 */
+    font-weight: 600;
+    background-color: rgba(56, 189, 248, 0.1);
+}
+
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-name {
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.logout-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #dc2626;
+}
