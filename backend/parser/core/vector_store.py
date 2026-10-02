@@ -18,7 +18,7 @@ import pyarrow as pa
 import numpy as np
 
 # Resolve project root dynamically (576project/data/vector_db)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
 
 # Default table name — must match the initial KB created in backend/config/db.js
