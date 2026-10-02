@@ -4,7 +4,7 @@ import {
     createUserApi, updateUserApi, deleteUserApi,
     getAuditLogsApi, clearAuditLogsApi,
 } from '../api/adminApi';
-import XdpPanel from '../components/XdpPanel';              // ⭐ 新增
+import XdpPanel from '../components/xdp/XdpPanel';             
 import '../css/AdminPanel.css';
 
 const AdminPanel = () => {

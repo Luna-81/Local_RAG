@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import {
     fetchXdpStats, fetchWhitelist, addWhitelistIp, removeWhitelistIp,
     fetchDropByIp, fetchDropHistory, clearDropHistory,
-} from '../api/xdpApi';
-import '../css/XdpPanel.css';
+} from '../../api/xdpApi';
+import '../../css/XdpPanel.css';
 
 const XdpPanel = () => {
     const [stats, setStats] = useState(null);
@@ -12,9 +12,9 @@ const XdpPanel = () => {
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
 
-    // 新增
-    const [dropByIp, setDropByIp] = useState([]);       // 本次会话被拒 IP
-    const [dropHistory, setDropHistory] = useState([]); // 历史累计被拒 IP
+    
+    const [dropByIp, setDropByIp] = useState([]);        
+    const [dropHistory, setDropHistory] = useState([]); 
 
     const loadStats = async () => {
         try {
@@ -33,7 +33,7 @@ const XdpPanel = () => {
         } catch (e) {}
     };
 
-    // 新增：本次会话被拒 IP
+    
     const loadDropByIp = async () => {
         try {
             const res = await fetchDropByIp();

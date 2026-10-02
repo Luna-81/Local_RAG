@@ -1,14 +1,14 @@
 // frontend/src/components/Navbar.js
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';   // ⭐ 加 useLocation
-import { ALL_ROUTES } from '../config/routes';
+import { Link, useNavigate, useLocation } from 'react-router-dom';    
+import { ALL_ROUTES } from '../../config/routes';
 
 const Navbar = ({ user, onLogout }) => {
     const navigate = useNavigate();
-    const location = useLocation();                                    // ⭐ 拿当前路径
+    const location = useLocation();                                   
     const userPermissions = user?.permissions || [];
 
-    // 根据权限列表过滤显示的菜单
+    // Filter nav items based on user permissions
     const navItems = ALL_ROUTES.filter(
         (route) => route.isNav && userPermissions.includes(route.permission)
     );
@@ -25,7 +25,7 @@ const Navbar = ({ user, onLogout }) => {
             <div style={styles.brand}>System Hub</div>
             <div style={styles.links}>
                 {navItems.map((item) => {
-                    const isActive = location.pathname === item.path;   // ⭐ 当前页判断
+                    const isActive = location.pathname === item.path;   
                     return (
                         <Link
                             key={item.path}
@@ -70,7 +70,7 @@ const styles = {
         fontWeight: '500',
         transition: 'color 0.15s'
     },
-    // ⭐ 当前页高亮：金色
+    
     linkActive: {
         color: '#fde68a',            
         textDecoration: 'none',

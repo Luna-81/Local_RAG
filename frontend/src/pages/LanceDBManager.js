@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { getVectorIndexStatsApi } from '../api/lancedbApi';
 import { listVectorDocsApi } from '../api/knowledgeApi';
 import { listKbApi } from '../api/kbApi';
-import KnowledgeMap from '../components/KnowledgeMap';
+import KnowledgeMap from '../components/knowledge/KnowledgeMap';
 import '../css/LanceDBManager.css';
 
 const LanceDBManager = () => {

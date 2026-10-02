@@ -1,5 +1,5 @@
 import React from 'react';
-import '../css/Chat.css';
+import '../../css/Chat.css';
 
 
 function Message({ text, isUser, loading }) {

@@ -1,6 +1,6 @@
 // src/components/ManageKbModal.js
 import React, { useState } from 'react';
-import { updateKbApi, deleteKbApi } from '../api/kbApi';
+import { updateKbApi, deleteKbApi } from '../../api/kbApi';
 
 function ManageKbModal({ list, onClose, onChanged }) {
   const [editingId, setEditingId] = useState(null);

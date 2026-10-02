@@ -1,7 +1,7 @@
 // src/components/KnowledgeMap.js
 import React, { useEffect, useState } from 'react';
-import { getKnowledgeMapApi, buildKnowledgeMapApi } from '../api/knowledgeApi';
-import '../css/KnowledgeMap.css';
+import { getKnowledgeMapApi, buildKnowledgeMapApi } from '../../api/knowledgeApi';
+import '../../css/KnowledgeMap.css';
 
 const W = 720, H = 460, PAD = 44;
 

@@ -1,6 +1,6 @@
 // src/components/DocumentList.js
 import React, { useRef, useState } from 'react';
-import '../css/Documents.css';
+import '../../css/Documents.css';
 
 function DocumentList({
   documents = [],

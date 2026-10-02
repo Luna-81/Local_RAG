@@ -1,8 +1,8 @@
 // src/pages/Documents.js
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import DocumentList from '../components/DocumentList';
-import CreateKbModal from '../components/CreateKbModal';
-import ManageKbModal from '../components/ManageKbModal';
+import DocumentList from '../components/documents/DocumentList';
+import CreateKbModal from '../components/kb/CreateKbModal';
+import ManageKbModal from '../components/kb/ManageKbModal';
 import {
   listUploadsApi,
   uploadDocumentApi,
