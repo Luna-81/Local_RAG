@@ -21,7 +21,8 @@ function Chat() {
     const [conversations, setConversations] = useState([]);
     const [currentChat, setCurrentChat] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [loading, setLoading] = useState(false);
+    // ⭐ loading 改成按对话区分
+    const [loadingChatId, setLoadingChatId] = useState(null);
 
     const [kbList, setKbList] = useState([]);
     const [showNewChatModal, setShowNewChatModal] = useState(false);
@@ -30,6 +31,10 @@ function Chat() {
     const [headerName, setHeaderName] = useState('');
 
     const getChatId = (chat) => chat?.id || chat?._id;
+
+    // ⭐ 派生：当前对话是否在 loading
+    const currentChatId = getChatId(currentChat);
+    const isCurrentChatLoading = loadingChatId !== null && loadingChatId === currentChatId;
 
     const parseMessages = useCallback((msgs) => {
         if (!msgs) return [];
@@ -44,7 +49,7 @@ function Chat() {
         return Array.isArray(msgs) ? msgs : [];
     }, []);
 
-    // ---- Load KB list (for modal + name lookup) ----
+    // ---- Load KB list ----
     useEffect(() => {
         (async () => {
             try {
@@ -56,7 +61,7 @@ function Chat() {
         })();
     }, []);
 
-    // ---- Load all conversations (no KB filter) ----
+    // ---- Load all conversations ----
     const loadConversations = useCallback(async () => {
         try {
             const res = await getConversationsApi();
@@ -74,7 +79,6 @@ function Chat() {
 
             setConversations(normalizedList);
 
-            // Keep currentChat if it still exists; otherwise pick the first
             setCurrentChat((prev) => {
                 if (prev) {
                     const found = normalizedList.find((c) => getChatId(c) === getChatId(prev));
@@ -87,7 +91,6 @@ function Chat() {
         }
     }, [kbList, parseMessages]);
 
-    // Load on mount and whenever kbList changes (to fill kbName)
     useEffect(() => {
         loadConversations();
     }, [loadConversations]);
@@ -109,7 +112,7 @@ function Chat() {
         setMessages(parseMessages(chat.messages));
     }, [parseMessages]);
 
-    // ---- New chat: open modal to pick KB ----
+    // ---- New chat ----
     const handleOpenNewChatModal = () => {
         setShowNewChatModal(true);
     };
@@ -190,10 +193,10 @@ function Chat() {
         }
     };
 
-    // ---- Ask: uses current chat's kbId ----
+    // ---- Ask ----
     const handleAsk = async (question) => {
         const trimmedQuestion = question.trim();
-        if (!currentChat || !trimmedQuestion || loading) return;
+        if (!currentChat || !trimmedQuestion || isCurrentChatLoading) return;
 
         const chatKbId = currentChat.kbId;
         if (!chatKbId) {
@@ -201,27 +204,30 @@ function Chat() {
             return;
         }
 
-        let activeChat = currentChat;
-        let targetChatId = getChatId(activeChat);
+        const targetChatId = getChatId(currentChat);
+        // ⭐ 从 currentChat 里取基础消息，避免用到旧 state
+        const baseMessages = parseMessages(currentChat.messages);
 
         const userMsg = { text: trimmedQuestion, isUser: true };
-        const updatedMessages = [...messages, userMsg];
+        const updatedMessages = [...baseMessages, userMsg];
 
         setMessages(updatedMessages);
-        setLoading(true);
+        // ⭐ 只标记当前对话为 loading
+        setLoadingChatId(targetChatId);
 
+        // 只更新目标对话
         setConversations((prev) =>
-            prev.map((c) => {
-                const cid = getChatId(c);
-                if (cid === getChatId(currentChat) || cid === targetChatId) {
-                    return {
-                        ...c,
-                        messages: updatedMessages,
-                        updatedAt: new Date().toISOString(),
-                    };
-                }
-                return c;
-            })
+            prev.map((c) =>
+                getChatId(c) === targetChatId
+                    ? { ...c, messages: updatedMessages, updatedAt: new Date().toISOString() }
+                    : c
+            )
+        );
+
+        setCurrentChat((prev) =>
+            getChatId(prev) === targetChatId
+                ? { ...prev, messages: updatedMessages }
+                : prev
         );
 
         try {
@@ -231,9 +237,13 @@ function Chat() {
             const finalMessages = [...updatedMessages, botMsg];
 
             setMessages(finalMessages);
+
             setCurrentChat((prev) =>
-                getChatId(prev) === targetChatId ? { ...prev, messages: finalMessages } : prev
+                getChatId(prev) === targetChatId
+                    ? { ...prev, messages: finalMessages }
+                    : prev
             );
+
             setConversations((prev) =>
                 prev.map((c) =>
                     getChatId(c) === targetChatId
@@ -245,7 +255,7 @@ function Chat() {
             try {
                 await sendMessageApi(
                     targetChatId,
-                    activeChat.name || 'New Conversation',
+                    currentChat.name || 'New Conversation',
                     finalMessages,
                     trimmedQuestion,
                     chatKbId
@@ -258,7 +268,8 @@ function Chat() {
             const errorMsg = { text: 'Error: Failed to obtain response from backend server.', isUser: false };
             setMessages((prev) => [...prev, errorMsg]);
         } finally {
-            setLoading(false);
+            // ⭐ 清掉 loading
+            setLoadingChatId(null);
         }
     };
 
@@ -306,9 +317,10 @@ function Chat() {
                             onCancelEdit={() => setIsEditingHeader(false)}
                         />
 
-                        <ChatMessages messages={messages} loading={loading} />
+                        {/* ⭐ 只让当前对话显示三个点 */}
+                        <ChatMessages messages={messages} loading={isCurrentChatLoading} />
 
-                        <ChatInput onAsk={handleAsk} disabled={loading} />
+                        <ChatInput onAsk={handleAsk} disabled={isCurrentChatLoading} />
                     </>
                 )}
             </main>
