@@ -5,13 +5,13 @@ Pipeline - Orchestrate the entire PDF processing workflow
 import os
 from typing import Dict, List, Any
 
-from pdf_parser import PDFParser
-from text_chunker import TextChunker
-from vector_encoder import VectorEncoder
-from vector_store import VectorStore
+from core.pdf_parser import PDFParser
+from core.text_chunker import TextChunker
+from core.vector_encoder import VectorEncoder
+from core.vector_store import VectorStore
 
 # Resolve project root dynamically (576project/data/vector_db)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
 
 

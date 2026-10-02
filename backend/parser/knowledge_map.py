@@ -1,4 +1,4 @@
-"""把一本书的 chunk 降维 + 聚类，提炼成知识点分布图。"""
+"""Reduce the dimension of the chunks of a book and perform clustering, then transform it into a knowledge point distribution map."""
 import json
 import os
 import re
@@ -15,9 +15,9 @@ try:
 except ImportError:
     HAS_UMAP = False
 
-from generate import generate_answer
+from query.generate import generate_answer
 
-# ── 路径 ─────────────────────────────────────────────
+# ── path ─────────────────────────────────────────────
 PARSER_DIR  = Path(__file__).resolve().parent
 PROJECT_DIR = PARSER_DIR.parents[1]              # ~/576project
 VECTOR_DB   = PROJECT_DIR / "data" / "vector_db"
@@ -31,7 +31,7 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 DOC_FIELD   = "document_name"
 
-# ── LLM 提示词 ───────────────────────────────────────
+# ── LLM prompt ───────────────────────────────────────
 PROMPT = """You are a knowledge extraction assistant.
 Below are several text chunks from the same document that share a topic.
 Extract the key knowledge point of this topic. Respond with STRICT JSON only
@@ -152,7 +152,7 @@ def cache_file(doc_name: str) -> Path:
 
 
 def list_documents():
-    """列出当前 KB 表里所有去重的 document_name，按 chunk 数降序。"""
+    """List all unique document names in the current KB table, sorted by chunk count in descending order."""
     db = lancedb.connect(str(VECTOR_DB))
 
     try:

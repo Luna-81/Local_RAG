@@ -5,7 +5,7 @@ Usage: python run.py <pdf_file_path>
 """
 import os
 import sys
-from pipeline import process_pdf_file
+from core.pipeline import process_pdf_file
 
 
 def find_pdf_file(filename):

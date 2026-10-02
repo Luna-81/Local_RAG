@@ -5,9 +5,9 @@ Complete Q&A Pipeline - Search + Build Prompt + Generate Answer
 import sys
 import json
 import warnings
-from search import search_documents
-from prompt_template import build_prompt
-from generate import generate_answer
+from query.search import search_documents
+from query.prompt_template import build_prompt
+from query.generate import generate_answer
 
 warnings.filterwarnings("ignore")
 

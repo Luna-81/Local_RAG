@@ -5,8 +5,8 @@ Search Function - Vector search in LanceDB (JSON output for Node.js Integration)
 import sys
 import json
 from typing import List, Dict
-from vector_encoder import VectorEncoder
-from vector_store import VectorStore
+from core.vector_encoder import VectorEncoder
+from core.vector_store import VectorStore
 
 
 class SearchEngine:
