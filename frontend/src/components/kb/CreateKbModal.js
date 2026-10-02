@@ -1,6 +1,6 @@
 // src/components/CreateKbModal.js
 import React, { useState } from 'react';
-import { createKbApi } from '../api/kbApi';
+import { createKbApi } from '../../api/kbApi';
 
 function CreateKbModal({ onClose, onCreated }) {
   const [name, setName] = useState('');

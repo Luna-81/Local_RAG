@@ -1,6 +1,6 @@
 // src/components/ChatList.js
 import React, { useState } from 'react';
-import '../css/Chat.css';
+import '../../css/Chat.css';
 
 function ChatList({
     conversations = [],

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../css/Chat.css';
+import '../../css/Chat.css';
 
 function ChatInput({ onAsk, disabled }) {
     const [question, setQuestion] = useState('');
