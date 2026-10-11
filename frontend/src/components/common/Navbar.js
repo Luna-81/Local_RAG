@@ -1,5 +1,7 @@
 // frontend/src/components/Navbar.js
 import React from 'react';
+import { logoutApi } from '../../api/authApi';
+import { clearAccessToken } from '../../api/authSession';
 import { Link, useNavigate, useLocation } from 'react-router-dom';    
 import { ALL_ROUTES } from '../../config/routes';
 
@@ -13,9 +15,16 @@ const Navbar = ({ user, onLogout }) => {
         (route) => route.isNav && userPermissions.includes(route.permission)
     );
 
-    const handleLogoutClick = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+    const handleLogoutClick = async () => {
+        try {
+            await logoutApi();
+        } catch (error) {
+            if (error.response?.status !== 401) {
+                window.alert('Logout failed. Please try again.');
+                return;
+            }
+        }
+        clearAccessToken();
         onLogout();
         navigate('/login');
     };

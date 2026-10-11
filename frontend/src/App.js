@@ -29,10 +29,7 @@ const getPermissionsByUserType = (userType) => {
 };
 
 function App() {
-    const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem('user');
-        return saved ? JSON.parse(saved) : null;
-    });
+    const [user, setUser] = useState(null);
 
     const handleLogin = (userData) => {
         setUser(userData);
@@ -76,7 +73,7 @@ function App() {
                                 <Route
                                     key={route.path}
                                     path={route.path}
-                                    element={<Component />}
+                                    element={<Component user={currentUserWithPerms} />}
                                 />
                             );
                         })}
