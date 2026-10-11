@@ -2,21 +2,34 @@
 const jwt = require('jsonwebtoken');
 const { USER_TYPES } = require('../config/constants');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-internal-system-secret-key-2026';
+const { JWT_SECRET } = require('../config/auth');
+const UserModel = require('../models/UserModel');
 
 function authenticate(req, res, next) {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const match = typeof authHeader === 'string' && /^Bearer ([^\s]+)$/i.exec(authHeader);
+    const token = match && match[1];
 
     if (!token) {
         return res.status(401).json({ success: false, message: 'Authentication token missing.' });
     }
 
-    jwt.verify(token, JWT_SECRET, (err, decodedUser) => {
+    jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'], issuer: 'local-rag', audience: 'local-rag-api' }, (err, decodedUser) => {
         if (err) {
-            return res.status(403).json({ success: false, message: 'Invalid or expired token.' });
+            return res.status(401).json({ success: false, message: 'Invalid or expired token.' });
         }
-        req.user = decodedUser; // Payload: { id, username, user_type }
+        if (!Number.isInteger(decodedUser.id) || !Number.isInteger(decodedUser.token_version) || !Number.isInteger(decodedUser.exp)) {
+            return res.status(401).json({ success: false, message: 'Invalid token identity.' });
+        }
+        try {
+            const user = UserModel.findById(decodedUser.id);
+            if (!user || user.token_version !== decodedUser.token_version) {
+                return res.status(401).json({ success: false, message: 'Session expired.' });
+            }
+            req.user = user;
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Authentication unavailable.' });
+        }
         next();
     });
 }
