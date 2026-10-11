@@ -57,3 +57,25 @@
 @media (max-width: 720px) {
   .xdp-cards { grid-template-columns: 1fr 1fr; }
 }
+
+
+.xdp-clear-history-btn {
+    margin-left: 12px;
+    font-size: 12px;
+    padding: 4px 12px;
+    background-color: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.15s ease;
+}
+
+.xdp-clear-history-btn:hover {
+    background-color: #b91c1c;
+}
+
+.xdp-clear-history-btn:active {
+    background-color: #991b1b;
+}
