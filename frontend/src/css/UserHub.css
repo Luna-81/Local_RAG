@@ -1,0 +1,18 @@
+.user-hub { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+.user-hub-header { margin-bottom: 28px; }
+.user-hub-eyebrow { color: #2563eb; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.user-hub-header h1 { margin: 8px 0; color: #0f172a; font-size: clamp(28px, 4vw, 38px); }
+.user-hub-header > p:last-child, .user-hub-section > p { color: #64748b; }
+.user-hub-summary { display: flex; gap: 16px; margin-bottom: 32px; }
+.user-hub-summary > div { min-width: 170px; padding: 20px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; }
+.user-hub-summary strong { display: block; color: #0f172a; font-size: 28px; }
+.user-hub-summary span { color: #64748b; font-size: 14px; }
+.user-hub-section { margin-top: 30px; }
+.user-hub-section h2 { margin-bottom: 14px; color: #0f172a; font-size: 20px; }
+.user-hub-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.user-hub-action { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 130px; padding: 20px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; color: #0f172a; text-decoration: none; }
+.user-hub-action:hover, .user-hub-action:focus-visible { border-color: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, .08); }
+.user-hub-action span:not(.user-hub-arrow) { max-width: 90%; color: #64748b; font-size: 14px; line-height: 1.4; }
+.user-hub-arrow { position: absolute; right: 18px; bottom: 16px; color: #2563eb; font-size: 20px; }
+.user-hub-error { color: #b91c1c; margin-bottom: 16px; }
+@media (max-width: 600px) { .user-hub { padding: 20px 8px; } .user-hub-summary > div { min-width: 0; flex: 1; } }

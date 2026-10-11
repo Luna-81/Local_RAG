@@ -1,28 +1,72 @@
-// src/pages/UserHub.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getConversationsApi } from '../api/chatApi';
+import { listKbApi } from '../api/kbApi';
+import '../css/UserHub.css';
 
-const UserHub = () => {
+const ACTIONS = [
+    { path: '/chat', title: 'Chat Console', detail: 'Ask questions about your knowledge bases.', permission: 'view:chat' },
+    { path: '/documents', title: 'Documents', detail: 'Upload and manage source PDFs.', permission: 'manage:documents' },
+    { path: '/lancedb-manager', title: 'LanceDB Manager', detail: 'Inspect indexed documents and knowledge maps.', permission: 'manage:lancedb' },
+    { path: '/dashboard', title: 'Dashboard', detail: 'View system and network statistics.', permission: 'view:dashboard' },
+    { path: '/admin-panel', title: 'Admin Panel', detail: 'Manage users and audit logs.', permission: 'manage:system' },
+];
+
+const UserHub = ({ user }) => {
+    const permissions = user?.permissions || [];
+    const [conversations, setConversations] = useState([]);
+    const [knowledgeBases, setKnowledgeBases] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        let active = true;
+        Promise.allSettled([getConversationsApi(), listKbApi()]).then(([chatResult, kbResult]) => {
+            if (!active) return;
+            if (chatResult.status === 'fulfilled' && chatResult.value.success) {
+                setConversations(chatResult.value.conversations || []);
+            }
+            if (kbResult.status === 'fulfilled' && kbResult.value.success) {
+                setKnowledgeBases(kbResult.value.knowledgeBases || []);
+            }
+            if (chatResult.status === 'rejected' || kbResult.status === 'rejected') {
+                setError('Some workspace details could not be loaded.');
+            }
+            setLoading(false);
+        });
+        return () => { active = false; };
+    }, []);
+
     return (
-        <div style={{ padding: '2rem' }}>
-            <h2>👤 Workspace</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginTop: '1rem' }}>
-                <div style={cardStyle}>
-                    <h3>🖼️ Image Analytics</h3>
-                    <p>Upload and process image payloads.</p>
-                </div>
-                <div style={cardStyle}>
-                    <h3>🏛️ Core Workflow</h3>
-                    <p>Operational council and dynamic orchestration.</p>
-                </div>
-                <div style={cardStyle}>
-                    <h3>📬 Feedback Portal</h3>
-                    <p>Issue reporting and system telemetry logs.</p>
-                </div>
+        <div className="user-hub">
+            <header className="user-hub-header">
+                <p className="user-hub-eyebrow">WORKSPACE</p>
+                <h1>Welcome, {user?.username || 'user'}</h1>
+                <p>Pick up a conversation or open one of your workspace tools.</p>
+            </header>
+
+            {error && <p className="user-hub-error" role="status">{error}</p>}
+
+            <div className="user-hub-summary" aria-label="Workspace summary">
+                <div><strong>{loading ? '…' : conversations.length}</strong><span>Conversations</span></div>
+                <div><strong>{loading ? '…' : knowledgeBases.length}</strong><span>Knowledge bases</span></div>
             </div>
+
+            <section className="user-hub-section">
+                <h2>Quick access</h2>
+                <div className="user-hub-actions">
+                    {ACTIONS.filter(action => permissions.includes(action.permission)).map(action => (
+                        <Link className="user-hub-action" key={action.path} to={action.path}>
+                            <strong>{action.title}</strong>
+                            <span>{action.detail}</span>
+                            <span className="user-hub-arrow" aria-hidden="true">→</span>
+                        </Link>
+                    ))}
+                </div>
+            </section>
+
         </div>
     );
 };
-
-const cardStyle = { background: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' };
 
 export default UserHub;
