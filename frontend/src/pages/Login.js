@@ -1,6 +1,7 @@
 // src/pages/Login.js
 import React, { useState } from 'react';
 import { loginApi } from '../api/authApi';
+import { setAccessToken } from '../api/authSession';
 import '../css/Login.css';
 
 const Login = ({ onLogin }) => {
@@ -19,9 +20,7 @@ const Login = ({ onLogin }) => {
             const res = await loginApi({ username, password });
             
             if (res.success) {
-                // 保存 Token 和用户信息
-                localStorage.setItem('token', res.token);
-                localStorage.setItem('user', JSON.stringify(res.user));
+                setAccessToken(res.token);
                 
                 // 触发父组件状态更新与路由跳转
                 onLogin(res.user);

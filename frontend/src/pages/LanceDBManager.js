@@ -206,7 +206,7 @@ const LanceDBManager = () => {
                     key={name}
                     style={on ? { background: '#eff6ff' } : undefined}
                   >
-                    <td style={{ wordBreak: 'break-all' }}>{name}</td>
+                    <td style={{ wordBreak: 'break-all' }}>{d.display_name || name}</td>
                     <td>{d.chunk_count}</td>
                     <td>
                       <button

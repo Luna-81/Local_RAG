@@ -162,13 +162,7 @@ const XdpPanel = () => {
             {/* ⭐ 新增：历史累计被拒 IP */}
             <h3 style={{ marginTop: 28 }}>
                 📜 Rejected by IP (All Time)
-                <button
-                    className="btn-danger"
-                    style={{ marginLeft: 12, fontSize: 12, padding: '2px 10px' }}
-                    onClick={handleClearHistory}
-                >
-                    Clear History
-                </button>
+                <button  className="xdp-clear-history-btn"  onClick={handleClearHistory} > Clear History </button>
             </h3>
             <div className="table-wrapper">
                 <table className="admin-table">

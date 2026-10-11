@@ -1,5 +1,6 @@
 // src/api/indexApi.js
 import axios from 'axios';
+import { getAccessToken, clearAccessToken } from './authSession';
 
 const api = axios.create({
     baseURL: '/api',
@@ -9,21 +10,20 @@ const api = axios.create({
 // 自动带 JWT
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = getAccessToken();
         if (token) config.headers.Authorization = `Bearer ${token}`;
         return config;
     },
     (error) => Promise.reject(error)
 );
 
-// 401/403 自动跳登录
+// 401 自动跳登录；403 保留当前登录状态
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         const status = error.response?.status;
-        if (status === 401 || status === 403) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+        if (status === 401) {
+            clearAccessToken();
             if (window.location.pathname !== '/login') {
                 window.location.href = '/login';
             }

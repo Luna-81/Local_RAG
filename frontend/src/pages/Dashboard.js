@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { fetchXdpStats, fetchWhitelist } from '../api/xdpApi';
 
 const Dashboard = () => {
-    const navigate = useNavigate();
-
     const [stats, setStats] = useState({ passedTotal: 0, droppedTotal: 0, totalPackets: 0 });
     const [whitelist, setWhitelist] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -49,7 +46,7 @@ const Dashboard = () => {
         : '0.0';
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <div style={{ width: '100%', maxWidth: 1100, margin: '0 auto', padding: '2rem', boxSizing: 'border-box' }}>
             <h2>📊 System Dashboard</h2>
             <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '0.25rem' }}>
                 Real-time system and network security overview

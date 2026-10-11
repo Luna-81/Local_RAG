@@ -6,6 +6,7 @@ const { execFile } = require('child_process');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
+const FileListModel = require('../models/FileListModel');
 
 const router = express.Router();
 
@@ -59,6 +60,7 @@ function runPython(args, tableName, maxBuffer, cb) {
 // ---------------------------------------------------------------------------
 router.get('/documents', authenticate, allowed, (req, res) => {
   const tableName = resolveTableName(req.query.kbId);
+  const kbId = Number(req.query.kbId);
 
   runPython(['--list'], tableName, undefined, (error, stdout, stderr) => {
     if (error) {
@@ -66,7 +68,16 @@ router.get('/documents', authenticate, allowed, (req, res) => {
     }
     try {
       const out = JSON.parse(stdout);
-      res.json({ success: true, data: out.documents, tableName });
+      const files = Number.isInteger(kbId) && kbId > 0 ? FileListModel.findByKbId(kbId) : [];
+      const originalNames = new Map(files.map(file => [file.filename, file.originalName]));
+      res.json({
+        success: true,
+        data: (out.documents || []).map(doc => ({
+          ...doc,
+          display_name: originalNames.get(doc.document_name) || doc.document_name,
+        })),
+        tableName,
+      });
     } catch (e) {
       res.status(500).json({ success: false, message: 'Failed to parse output.' });
     }

@@ -1,4 +1,4 @@
-// src/components/ChatList.js
+// src/components/chat/ChatList.js
 import React, { useState } from 'react';
 import '../../css/Chat.css';
 
