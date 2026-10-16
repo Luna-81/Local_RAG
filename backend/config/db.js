@@ -62,6 +62,8 @@ function initDatabase() {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     `);
+    // Upload workers are children of this server and cannot survive its restart.
+    db.prepare("UPDATE filelist SET status = 'failed' WHERE status = 'processing'").run();
 
     // 4. QA statistics table
     db.exec(`
