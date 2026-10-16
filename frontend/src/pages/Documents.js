@@ -7,6 +7,7 @@ import {
   listUploadsApi,
   uploadDocumentApi,
   deleteDocumentApi,
+  retryDocumentApi,
 } from '../api/documentsApi';
 import { listKbApi } from '../api/kbApi';
 
@@ -133,6 +134,15 @@ function DocumentsPage() {
     }
   };
 
+  const handleRetry = async (docId) => {
+    try {
+      await retryDocumentApi(docId);
+      await fetchDocuments(false);
+    } catch (err) {
+      alert('Retry failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   return (
     <>
       <DocumentList
@@ -140,6 +150,7 @@ function DocumentsPage() {
         loading={loading}
         onUpload={handleUpload}
         onDelete={handleDelete}
+        onRetry={handleRetry}
         kbList={kbList}
         kbId={kbId}
         onKbChange={setKbId}

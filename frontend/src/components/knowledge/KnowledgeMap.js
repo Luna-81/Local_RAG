@@ -5,7 +5,7 @@ import '../../css/KnowledgeMap.css';
 
 const W = 720, H = 460, PAD = 44;
 
-const KnowledgeMap = ({ docName, kbId }) => {
+const KnowledgeMap = ({ docName, displayName, kbId }) => {
   const [data, setData]         = useState(null);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading]   = useState(false);
@@ -43,7 +43,7 @@ const KnowledgeMap = ({ docName, kbId }) => {
   return (
     <div className="km-wrap">
       <div className="km-toolbar">
-        <h3>Knowledge Map · {docName}</h3>
+        <h3>Knowledge Map · {displayName || docName}</h3>
         <button onClick={handleBuild} disabled={loading}>
           {loading ? 'Generating… (1–5 min)' : hasData ? 'Regenerate' : 'Generate Knowledge Map'}
         </button>

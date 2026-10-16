@@ -226,7 +226,11 @@ const LanceDBManager = () => {
 
       {/* Knowledge map for current selection */}
       {selectedDoc && kbId && (
-        <KnowledgeMap docName={selectedDoc} kbId={kbId} />
+        <KnowledgeMap
+          docName={selectedDoc}
+          displayName={docs.find((doc) => doc.document_name === selectedDoc)?.display_name || selectedDoc}
+          kbId={kbId}
+        />
       )}
 
       {selectedDoc && !kbId && (

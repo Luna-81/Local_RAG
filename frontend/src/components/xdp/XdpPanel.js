@@ -136,6 +136,42 @@ const XdpPanel = () => {
                 </div>
             </div>
 
+            {/* 白名单管理 */}
+            <h3 style={{ marginTop: 28 }}>IP Whitelist</h3>
+            <div className="xdp-add-row">
+                <input
+                    type="text"
+                    placeholder="e.g. 192.168.1.100"
+                    value={ipInput}
+                    onChange={e => setIpInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                />
+                <button onClick={handleAdd} disabled={busy}>+ Add</button>
+            </div>
+
+            <div className="table-wrapper">
+                <table className="admin-table">
+                    <thead>
+                        <tr>
+                            <th>IP Address</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {whitelist.length === 0 ? (
+                            <tr><td colSpan="2" style={{ textAlign: 'center' }}>No whitelisted IPs.</td></tr>
+                        ) : whitelist.map(ip => (
+                            <tr key={ip}>
+                                <td>{ip}</td>
+                                <td>
+                                    <button className="btn-danger" onClick={() => handleRemove(ip)}>Remove</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
             {/* ⭐ 新增：本次会话被拒 IP */}
             <h3 style={{ marginTop: 28 }}>🚫 Rejected by IP (Current Session)</h3>
             <div className="table-wrapper">
@@ -189,41 +225,6 @@ const XdpPanel = () => {
                 </table>
             </div>
 
-            {/* 白名单管理 */}
-            <h3 style={{ marginTop: 28 }}>IP Whitelist</h3>
-            <div className="xdp-add-row">
-                <input
-                    type="text"
-                    placeholder="e.g. 192.168.1.100"
-                    value={ipInput}
-                    onChange={e => setIpInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                />
-                <button onClick={handleAdd} disabled={busy}>+ Add</button>
-            </div>
-
-            <div className="table-wrapper">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>IP Address</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {whitelist.length === 0 ? (
-                            <tr><td colSpan="2" style={{ textAlign: 'center' }}>No whitelisted IPs.</td></tr>
-                        ) : whitelist.map(ip => (
-                            <tr key={ip}>
-                                <td>{ip}</td>
-                                <td>
-                                    <button className="btn-danger" onClick={() => handleRemove(ip)}>Remove</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
         </div>
     );
 };
