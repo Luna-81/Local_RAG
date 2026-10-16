@@ -80,6 +80,11 @@ class FileListModel {
                  .run(status, filename).changes > 0;
     }
 
+    static retryFailed(filename) {
+        return db.prepare("UPDATE filelist SET status = 'processing' WHERE filename = ? AND status = 'failed'")
+                 .run(filename).changes > 0;
+    }
+
     /**
      * Delete by stored filename.
      * userId optional: pass to restrict to the uploader.

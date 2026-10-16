@@ -1,9 +1,9 @@
-// Keep the access token only for the lifetime of the current page.
-let accessToken = null;
+// Keep the token for the current browser tab, including page refreshes.
+const tokenKey = 'accessToken';
 
-export const getAccessToken = () => accessToken;
-export const setAccessToken = (token) => { accessToken = token; };
-export const clearAccessToken = () => { accessToken = null; };
+export const getAccessToken = () => sessionStorage.getItem(tokenKey);
+export const setAccessToken = (token) => { sessionStorage.setItem(tokenKey, token); };
+export const clearAccessToken = () => { sessionStorage.removeItem(tokenKey); };
 
 // Discard credentials stored by older versions of the app.
 localStorage.removeItem('token');

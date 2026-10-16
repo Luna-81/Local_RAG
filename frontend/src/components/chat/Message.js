@@ -11,7 +11,6 @@ function Message({ text, isUser, loading }) {
                         <span>.</span><span>.</span><span>.</span>
                     </span>
                 </div>
-                <div className="message-time">Thinking...</div>
             </div>
         );
     }
@@ -19,7 +18,6 @@ function Message({ text, isUser, loading }) {
     return (
         <div className={`message ${isUser ? 'user' : 'ai'}`}>
             <div className="message-content">{text}</div>
-            <div className="message-time">{new Date().toLocaleTimeString()}</div>
         </div>
     );
 }

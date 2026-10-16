@@ -36,3 +36,8 @@ export const deleteDocumentApi = async (id) => {
     const { data } = await api.delete(`/documents/${encodeURIComponent(id)}`);
     return data;
 };
+
+export const retryDocumentApi = async (id) => {
+    const { data } = await api.post(`/documents/${encodeURIComponent(id)}/retry`);
+    return data;
+};

@@ -1,10 +1,12 @@
 // frontend/src/App.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/common/Navbar';
 import Login from './pages/Login';
 import { ALL_ROUTES } from './config/routes';
+import { getMeApi } from './api/authApi';
+import { getAccessToken, clearAccessToken } from './api/authSession';
 
 const ALL_PERMISSIONS = [
     'view:user_hub',
@@ -30,6 +32,23 @@ const getPermissionsByUserType = (userType) => {
 
 function App() {
     const [user, setUser] = useState(null);
+    const [restoringSession, setRestoringSession] = useState(Boolean(getAccessToken()));
+
+    useEffect(() => {
+        if (!getAccessToken()) return;
+        let active = true;
+        getMeApi()
+            .then((result) => {
+                if (active && result.success) setUser(result.user);
+            })
+            .catch(() => {
+                if (active) clearAccessToken();
+            })
+            .finally(() => {
+                if (active) setRestoringSession(false);
+            });
+        return () => { active = false; };
+    }, []);
 
     const handleLogin = (userData) => {
         setUser(userData);
@@ -51,6 +70,8 @@ function App() {
 
     const defaultRedirectPath = allowedRoutes[0]?.path || '/user';
     const currentUserWithPerms = user ? { ...user, permissions: userPermissions } : null;
+
+    if (restoringSession) return <div style={{ padding: '2rem' }}>Restoring session...</div>;
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

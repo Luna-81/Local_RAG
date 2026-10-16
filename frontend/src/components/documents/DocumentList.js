@@ -6,6 +6,7 @@ function DocumentList({
   documents = [],
   onUpload,
   onDelete,
+  onRetry,
   kbList = [],
   kbId = null,
   onKbChange,
@@ -311,6 +312,16 @@ function DocumentList({
                         </td>
                         <td className="doc-status">{getStatusBadge(doc)}</td>
                         <td className="doc-action">
+                          {doc.status === 'failed' && onRetry && (
+                            <button
+                              type="button"
+                              className="kb-btn small"
+                              onClick={() => onRetry(id)}
+                              title="Retry vectorization"
+                            >
+                              Retry
+                            </button>
+                          )}
                           {onDelete && (
                             <button
                               type="button"

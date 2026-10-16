@@ -2,6 +2,8 @@
 import sys
 import os
 import json
+import re
+from pathlib import Path
 import lancedb
 
 # 基于当前文件动态定位项目根目录 (576project/data/vector_db)
@@ -62,6 +64,25 @@ def clear_table(table_name):
         sys.stderr.write(f"Error dropping table '{table_name}': {str(e)}\n")
         sys.exit(1)
 
+def delete_document(table_name, stored_name, original_name):
+    """Remove a PDF's vectors, including records written by older importers."""
+    if not re.fullmatch(r"[A-Za-z0-9_]+", table_name):
+        raise ValueError("Invalid table name")
+
+    db = get_db()
+    names = {stored_name, original_name}
+    if table_name in db.list_tables().tables:
+        table = db.open_table(table_name)
+        for name in names:
+            # LanceDB uses SQL predicates; double apostrophes escape string values.
+            table.delete("document_name = '" + name.replace("'", "''") + "'")
+
+    cache_dir = Path(BASE_DIR) / "data" / "knowledge_maps" / table_name
+    for name in names:
+        cache_name = re.sub(r"[^\w.\-]", "_", name) + ".json"
+        (cache_dir / cache_name).unlink(missing_ok=True)
+    print(json.dumps({"success": True}))
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.stderr.write("Usage: python3 lancedb_admin.py <stats|clear> [table_name]\n")
@@ -76,6 +97,15 @@ if __name__ == "__main__":
             sys.stderr.write("Error: Table name required for 'clear' command.\n")
             sys.exit(1)
         clear_table(sys.argv[2])
+    elif command == "delete-document":
+        if len(sys.argv) != 5:
+            sys.stderr.write("Usage: lancedb_admin.py delete-document <table> <stored_name> <original_name>\n")
+            sys.exit(1)
+        try:
+            delete_document(sys.argv[2], sys.argv[3], sys.argv[4])
+        except Exception as exc:
+            sys.stderr.write(f"Error deleting document: {exc}\n")
+            sys.exit(1)
     else:
         sys.stderr.write(f"Unknown command: {command}\n")
         sys.exit(1)
