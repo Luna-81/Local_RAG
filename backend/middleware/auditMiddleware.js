@@ -12,7 +12,7 @@ function auditLogger(req, res, next) {
 
     const start = Date.now();
 
-    // res 'finish' 触发时，authenticate 已跑完，req.user 可读
+
     res.on('finish', () => {
         try {
             AuditModel.record({
