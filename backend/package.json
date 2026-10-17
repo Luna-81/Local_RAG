@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
+    "test": "node --test tests/*.test.js",
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
