@@ -36,6 +36,83 @@ const upload = multer({
   },
 });
 
+function removeTemporaryUpload(filePath) {
+  if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath);
+}
+
+function rejectUpload(res, filePath, status, message) {
+  removeTemporaryUpload(filePath);
+  return res.status(status).json({ success: false, message });
+}
+
+function resolveUploadKnowledgeBase(kbId) {
+  if (!kbId) return { error: { status: 400, message: 'Knowledge base is required' } };
+
+  const kb = KnowledgeBaseModel.findById(kbId);
+  if (!kb) return { error: { status: 400, message: 'Knowledge base not found' } };
+  return { kb, kbId };
+}
+
+function calculateContentHash(filePath) {
+  const contents = fs.readFileSync(filePath);
+  return crypto.createHash('sha256').update(contents).digest('hex');
+}
+
+function findDuplicateUpload(hash) {
+  const duplicate = FileListModel.findByHash(hash);
+  if (!duplicate) return null;
+
+  const knowledgeBase = KnowledgeBaseModel.findById(duplicate.kb_id);
+  return {
+    success: false,
+    message: `This file already exists in knowledge base "${knowledgeBase ? knowledgeBase.name : 'unknown'}"`,
+    existing: {
+      kbId: duplicate.kb_id,
+      kbName: knowledgeBase ? knowledgeBase.name : null,
+      originalName: duplicate.original_name,
+    },
+  };
+}
+
+function createUploadRecord(req, file, kbId, hash) {
+  const filename = file.filename;
+  try {
+    FileListModel.create(
+      filename,
+      file.originalname,
+      file.size,
+      getUserId(req),
+      'processing',
+      kbId,
+      hash,
+    );
+    return { filename };
+  } catch (error) {
+    removeTemporaryUpload(file.path);
+    if (String(error.message).includes('UNIQUE')) {
+      return {
+        error: { status: 409, message: 'This file already exists in a knowledge base' },
+      };
+    } else {
+      console.error('[Upload] DB insert error:', error);
+      return { error: { status: 500, message: error.message } };
+    }
+  }
+}
+
+function buildUploadResponse(file, kbId) {
+  return {
+    id: file.filename,
+    originalName: file.originalname,
+    size: file.size,
+    sizeMB: (file.size / (1024 * 1024)).toFixed(2),
+    uploadedAtStr: new Date().toLocaleString(),
+    status: 'processing',
+    progress: 50,
+    kbId,
+  };
+}
+
 // In-memory processing status
 // Map<filename, { status: 'processing' | 'completed' | 'failed', progress: number }>
 let processingStatusMap = new Map();
@@ -142,87 +219,43 @@ router.post(
       return res.status(400).json({ success: false, message: 'No file uploaded.' });
     }
 
-    // 1. Validate KB
-    const kbId = Number(req.body.kbId);
-    if (!kbId) {
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ success: false, message: 'Knowledge base is required' });
-    }
-    const kb = KnowledgeBaseModel.findById(kbId);
-    if (!kb) {
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ success: false, message: 'Knowledge base not found' });
+    const knowledgeBase = resolveUploadKnowledgeBase(Number(req.body.kbId));
+    if (knowledgeBase.error) {
+      removeTemporaryUpload(req.file.path);
+      return res
+        .status(knowledgeBase.error.status)
+        .json({ success: false, message: knowledgeBase.error.message });
     }
 
-    // 2. Content hash for global dedup
-    let hash;
+    let contentHash;
     try {
-      const buf = fs.readFileSync(req.file.path);
-      hash = crypto.createHash('sha256').update(buf).digest('hex');
-    } catch (err) {
-      fs.unlinkSync(req.file.path);
-      return res.status(500).json({ success: false, message: 'Failed to read file' });
+      contentHash = calculateContentHash(req.file.path);
+    } catch (error) {
+      console.error('[Upload] File read error:', error);
+      return rejectUpload(res, req.file.path, 500, 'Failed to read file');
     }
 
-    const dup = FileListModel.findByHash(hash);
-    if (dup) {
-      fs.unlinkSync(req.file.path);
-      const dupKb = KnowledgeBaseModel.findById(dup.kb_id);
-      return res.status(409).json({
-        success: false,
-        message: `This file already exists in knowledge base "${dupKb ? dupKb.name : 'unknown'}"`,
-        existing: {
-          kbId: dup.kb_id,
-          kbName: dupKb ? dupKb.name : null,
-          originalName: dup.original_name,
-        },
-      });
+    const duplicate = findDuplicateUpload(contentHash);
+    if (duplicate) {
+      removeTemporaryUpload(req.file.path);
+      return res.status(409).json(duplicate);
     }
 
-    // 3. Insert DB record
-    const filename = req.file.filename;
-    const userId = getUserId(req);
-    try {
-      FileListModel.create(
-        filename,
-        req.file.originalname,
-        req.file.size,
-        userId,
-        'processing',
-        kbId,
-        hash,
-      );
-    } catch (err) {
-      fs.unlinkSync(req.file.path);
-      if (String(err.message).includes('UNIQUE')) {
-        return res.status(409).json({
-          success: false,
-          message: 'This file already exists in a knowledge base',
-        });
-      }
-      console.error('[Upload] DB insert error:', err);
-      return res.status(500).json({ success: false, message: err.message });
+    const uploadRecord = createUploadRecord(req, req.file, knowledgeBase.kbId, contentHash);
+    if (uploadRecord.error) {
+      return res
+        .status(uploadRecord.error.status)
+        .json({ success: false, message: uploadRecord.error.message });
     }
+    const { filename } = uploadRecord;
 
-    // 4. Respond immediately
     processingStatusMap.set(filename, { status: 'processing', progress: 50 });
-
-    const docInfo = {
-      id: filename,
-      originalName: req.file.originalname,
-      size: req.file.size,
-      sizeMB: (req.file.size / (1024 * 1024)).toFixed(2),
-      uploadedAtStr: new Date().toLocaleString(),
-      status: 'processing',
-      progress: 50,
-      kbId,
-    };
-    res.json({ success: true, file: docInfo });
+    res.json({ success: true, file: buildUploadResponse(req.file, knowledgeBase.kbId) });
 
     startVectorization({
       filename,
       originalName: req.file.originalname,
-      kb,
+      kb: knowledgeBase.kb,
       chunkSize: req.body.chunk_size || 300,
       overlap: req.body.overlap || 30,
     });
@@ -283,6 +316,52 @@ router.post(
   },
 );
 
+function resolveDocumentDeletion(filename) {
+  const record = FileListModel.findByFilename(filename);
+  if (!record) return { status: 404, message: 'Document not found.' };
+  if (processingStatusMap.get(filename)?.status === 'processing') {
+    return { status: 409, message: 'Wait for document processing to finish before deleting.' };
+  }
+
+  const kb = KnowledgeBaseModel.findById(record.kb_id);
+  if (!kb) return { status: 409, message: 'Document knowledge base not found.' };
+
+  const hasSameNameDocument = FileListModel.findByKbId(record.kb_id).some(
+    (file) => file.filename !== filename && file.originalName === record.original_name,
+  );
+  if (hasSameNameDocument) {
+    return {
+      status: 409,
+      message:
+        'Another document in this knowledge base has the same original name. Rename or remove the duplicate before deleting.',
+    };
+  }
+  return { record, kb };
+}
+
+function deleteDocumentVectors(tableName, filename, originalName) {
+  return new Promise((resolve, reject) => {
+    execParser(
+      'lancedb_admin.py',
+      ['delete-document', tableName, filename, originalName],
+      {},
+      (error, stdout, stderr) => {
+        if (error) reject(new Error(stderr || error.message));
+        else resolve(stdout);
+      },
+    );
+  });
+}
+
+function deleteDocumentFile(filename, filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    console.log('File deleted:', filename);
+  } else {
+    console.warn('File not found on server:', filePath);
+  }
+}
+
 // ============================================================
 // DELETE /api/documents/:id  - remove physical file + DB record
 // ============================================================
@@ -292,64 +371,23 @@ router.delete(
   authorize([USER_TYPES.AI_OPERATOR, USER_TYPES.SYS_ADMIN]),
   async (req, res) => {
     try {
-      const safeFileName = path.basename(decodeURIComponent(req.params.id));
-      const filePath = path.join(uploadDir, safeFileName);
-
-      const record = FileListModel.findByFilename(safeFileName);
-      if (!record) {
-        return res.status(404).json({ success: false, message: 'Document not found.' });
-      }
-      if (processingStatusMap.get(safeFileName)?.status === 'processing') {
-        return res.status(409).json({
-          success: false,
-          message: 'Wait for document processing to finish before deleting.',
-        });
-      }
-      const kb = KnowledgeBaseModel.findById(record.kb_id);
-      if (!kb) {
-        return res
-          .status(409)
-          .json({ success: false, message: 'Document knowledge base not found.' });
-      }
-      const sameName = FileListModel.findByKbId(record.kb_id).some(
-        (file) => file.filename !== safeFileName && file.originalName === record.original_name,
-      );
-      if (sameName) {
-        return res.status(409).json({
-          success: false,
-          message:
-            'Another document in this knowledge base has the same original name. Rename or remove the duplicate before deleting.',
-        });
+      const filename = path.basename(decodeURIComponent(req.params.id));
+      const filePath = path.join(uploadDir, filename);
+      const document = resolveDocumentDeletion(filename);
+      if (document.status) {
+        return res.status(document.status).json({ success: false, message: document.message });
       }
 
       // Remove vectors first. If this fails, keep the PDF and metadata so deletion can be retried.
-      await new Promise((resolve, reject) => {
-        execParser(
-          'lancedb_admin.py',
-          ['delete-document', kb.tableName, safeFileName, record.original_name],
-          {},
-          (error, stdout, stderr) => {
-            if (error) reject(new Error(stderr || error.message));
-            else resolve(stdout);
-          },
-        );
-      });
-
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        console.log('File deleted:', safeFileName);
-      } else {
-        console.warn('File not found on server:', filePath);
-      }
-
-      processingStatusMap.delete(safeFileName);
-
-      FileListModel.deleteByFilename(safeFileName);
+      await deleteDocumentVectors(document.kb.tableName, filename, document.record.original_name);
+      deleteDocumentFile(filename, filePath);
+      processingStatusMap.delete(filename);
+      FileListModel.deleteByFilename(filename);
 
       return res.json({
         success: true,
         message: 'Document deleted successfully',
-        id: safeFileName,
+        id: filename,
       });
     } catch (err) {
       console.error('Delete document error:', err);
