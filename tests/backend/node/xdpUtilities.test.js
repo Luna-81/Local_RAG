@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { hexArrayToIp, ipToHexArray } = require('../utils/xdpAddress');
-const { calculateDropDelta, parseStats } = require('../utils/xdpMetrics');
+const { hexArrayToIp, ipToHexArray } = require('../../../backend/utils/xdpAddress');
+const { calculateDropDelta, parseStats } = require('../../../backend/utils/xdpMetrics');
 
 test('IPv4 addresses convert to and from the BPF byte representation', () => {
   const bytes = ipToHexArray('192.168.1.10');

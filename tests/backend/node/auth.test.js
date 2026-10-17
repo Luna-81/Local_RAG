@@ -1,15 +1,17 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const Module = require('module');
+const path = require('node:path');
+const backendRequire = Module.createRequire(path.join(__dirname, '../../../backend/package.json'));
 process.env.JWT_SECRET = 'test-only-secret-that-is-at-least-32-bytes';
-const jwt = require('jsonwebtoken');
+const jwt = backendRequire('jsonwebtoken');
 let user = { id: 1, username: 'admin', user_type: 3, token_version: 0 };
 const original = Module._load;
 Module._load = function (name) {
   if (name === '../models/UserModel') return { findById: () => user };
   return original.apply(this, arguments);
 };
-const { authenticate, authorize } = require('../middleware/authMiddleware');
+const { authenticate, authorize } = backendRequire('./middleware/authMiddleware');
 Module._load = original;
 function token(payload = {}, options = {}) {
   return jwt.sign({ id: 1, token_version: 0, ...payload }, process.env.JWT_SECRET, {
