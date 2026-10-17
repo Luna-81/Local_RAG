@@ -1,6 +1,7 @@
 // src/components/chat/ChatList.js
 import React, { useState } from 'react';
 import '../../css/Chat.css';
+import { getChatId, parseMessages } from '../../utils/chat';
 
 function ChatList({
   conversations = [],
@@ -14,20 +15,6 @@ function ChatList({
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
 
-  const getChatId = (chat) => chat?.id || chat?._id;
-
-  const getParsedMessages = (msgs) => {
-    if (!msgs) return [];
-    if (typeof msgs === 'string') {
-      try {
-        return JSON.parse(msgs);
-      } catch {
-        return [];
-      }
-    }
-    return Array.isArray(msgs) ? msgs : [];
-  };
-
   const formatTime = (date) => {
     if (!date) return '';
     const d = new Date(date);
@@ -37,14 +24,14 @@ function ChatList({
   };
 
   const getLastMessage = (msgsInput) => {
-    const msgs = getParsedMessages(msgsInput);
+    const msgs = parseMessages(msgsInput);
     if (msgs.length === 0) return 'No messages';
     const last = msgs[msgs.length - 1];
     const text = last?.text || last?.content || '';
     return text.length > 35 ? `${text.substring(0, 35)}...` : text;
   };
 
-  const getMessageCount = (msgsInput) => getParsedMessages(msgsInput).length;
+  const getMessageCount = (msgsInput) => parseMessages(msgsInput).length;
 
   const handleStartRename = (conv, e) => {
     e.stopPropagation();

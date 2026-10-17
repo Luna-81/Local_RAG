@@ -21,12 +21,12 @@ function NewChatModal({ kbList = [], onClose, onCreate }) {
         <h3>New Conversation</h3>
 
         {kbList.length === 0 ? (
-          <p style={{ color: '#64748b', fontSize: 14 }}>
+          <p className="chat-modal-message">
             No knowledge bases available. Create one in the Documents page first.
           </p>
         ) : (
           <>
-            <p style={{ color: '#64748b', fontSize: 13, marginTop: -8, marginBottom: 16 }}>
+            <p className="chat-modal-instructions">
               Choose a knowledge base to ask questions from.
             </p>
 
