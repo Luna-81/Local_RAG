@@ -5,21 +5,17 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const multer = require('multer');
-const { execFile } = require('child_process');
+const { execParser } = require('../services/pythonProcess');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
 const FileListModel = require('../models/FileListModel');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const { getUserId } = require('../utils/reqUser');
-const { PYTHON_EXECUTABLE, UPLOAD_DIR, VECTORIZE_TIMEOUT_MS } = require('../config/runtime');
+const { UPLOAD_DIR, VECTORIZE_TIMEOUT_MS } = require('../config/runtime');
 
-// Upload / parser directories
+// Upload directory
 const uploadDir = UPLOAD_DIR;
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const parserDir = path.join(__dirname, '../parser');
-const RUN_SCRIPT = path.join(parserDir, 'run.py');
-const LANCEDB_ADMIN_SCRIPT = path.join(parserDir, 'lancedb_admin.py');
 
 // Multer storage
 const storage = multer.diskStorage({
@@ -47,7 +43,6 @@ let processingStatusMap = new Map();
 function startVectorization({ filename, originalName, kb, chunkSize = 300, overlap = 30 }) {
   const absoluteFilePath = path.join(uploadDir, filename);
   const args = [
-    RUN_SCRIPT,
     absoluteFilePath,
     '--chunk_size',
     String(chunkSize),
@@ -61,11 +56,10 @@ function startVectorization({ filename, originalName, kb, chunkSize = 300, overl
   const childEnv = { ...process.env, KB_TABLE: kb.tableName };
   console.log(`[Vectorization Started] ${originalName} -> table=${kb.tableName}`);
 
-  execFile(
-    PYTHON_EXECUTABLE,
+  execParser(
+    'run.py',
     args,
     {
-      cwd: parserDir,
       env: childEnv,
       maxBuffer: 10 * 1024 * 1024,
       timeout: VECTORIZE_TIMEOUT_MS,
@@ -268,10 +262,10 @@ router.post(
     }
 
     // A failed worker may have written some vectors before exiting.
-    execFile(
-      resolvePython(),
-      [LANCEDB_ADMIN_SCRIPT, 'delete-document', kb.tableName, filename, record.original_name],
-      { cwd: parserDir },
+    execParser(
+      'lancedb_admin.py',
+      ['delete-document', kb.tableName, filename, record.original_name],
+      {},
       (error, stdout, stderr) => {
         if (error) {
           return res.status(500).json({ success: false, message: stderr || error.message });
@@ -330,16 +324,10 @@ router.delete(
 
       // Remove vectors first. If this fails, keep the PDF and metadata so deletion can be retried.
       await new Promise((resolve, reject) => {
-        execFile(
-          resolvePython(),
-          [
-            LANCEDB_ADMIN_SCRIPT,
-            'delete-document',
-            kb.tableName,
-            safeFileName,
-            record.original_name,
-          ],
-          { cwd: parserDir },
+        execParser(
+          'lancedb_admin.py',
+          ['delete-document', kb.tableName, safeFileName, record.original_name],
+          {},
           (error, stdout, stderr) => {
             if (error) reject(new Error(stderr || error.message));
             else resolve(stdout);

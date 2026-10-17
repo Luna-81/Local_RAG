@@ -1,14 +1,10 @@
 // backend/router/qaRouter.js
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const { spawn } = require('child_process');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const { authenticate } = require('../middleware/authMiddleware');
-const { PYTHON_EXECUTABLE, QA_PROCESS_TIMEOUT_MS } = require('../config/runtime');
-
-const parserDir = path.join(__dirname, '../parser');
-const ASK_SCRIPT = path.join(parserDir, 'ask.py');
+const { QA_PROCESS_TIMEOUT_MS } = require('../config/runtime');
+const { spawnParser } = require('../services/pythonProcess');
 
 /**
  * POST /api/qa/ask
@@ -33,8 +29,7 @@ router.post('/ask', authenticate, async (req, res) => {
 
   console.log(`[QA Router] KB=${kb.name} (${kbTable}) | Q="${question.substring(0, 50)}..."`);
 
-  const askProcess = spawn(PYTHON_EXECUTABLE, [ASK_SCRIPT, question], {
-    cwd: parserDir,
+  const askProcess = spawnParser('ask.py', [question], {
     env: {
       ...process.env,
       PYTHONIOENCODING: 'utf-8',
@@ -74,7 +69,7 @@ router.post('/ask', authenticate, async (req, res) => {
 
   const timeout = setTimeout(() => {
     askProcess.kill();
-    console.error('[Timeout] Ask process killed after 60s');
+    console.error(`[Timeout] Ask process killed after ${QA_PROCESS_TIMEOUT_MS / 1000}s`);
     if (!res.headersSent) {
       res.status(504).json({ success: false, message: 'Request timeout' });
     }
