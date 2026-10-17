@@ -8,7 +8,7 @@
  * Returns null if called on an unauthenticated request.
  */
 function getUserId(req) {
-    return (req && req.user && req.user.id) || null;
+  return (req && req.user && req.user.id) || null;
 }
 
 module.exports = { getUserId };

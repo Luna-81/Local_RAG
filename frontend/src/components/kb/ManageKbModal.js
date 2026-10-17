@@ -29,7 +29,7 @@ function ManageKbModal({ list, onClose, onChanged }) {
     try {
       await updateKbApi(id, {
         name: editName.trim(),
-        description: editDesc.trim()
+        description: editDesc.trim(),
       });
       await onChanged();
       cancelEdit();
@@ -60,10 +60,7 @@ function ManageKbModal({ list, onClose, onChanged }) {
 
   return (
     <div className="kb-modal-mask" onClick={onClose}>
-      <div
-        className="kb-modal kb-modal-wide"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="kb-modal kb-modal-wide" onClick={(e) => e.stopPropagation()}>
         <h3>Manage knowledge bases</h3>
 
         <table className="kb-table">
@@ -142,9 +139,7 @@ function ManageKbModal({ list, onClose, onChanged }) {
                         onClick={() => handleDelete(kb)}
                         disabled={busyId === kb.id || kb.fileCount > 0}
                         title={
-                          kb.fileCount > 0
-                            ? 'Cannot delete: KB still has files'
-                            : 'Delete this KB'
+                          kb.fileCount > 0 ? 'Cannot delete: KB still has files' : 'Delete this KB'
                         }
                       >
                         Delete

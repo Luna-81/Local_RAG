@@ -6,20 +6,22 @@ import re
 from pathlib import Path
 import lancedb
 
-# 基于当前文件动态定位项目根目录 (576project/data/vector_db)
+# Resolve the project root relative to this file.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
+
 
 def get_db():
     if not os.path.exists(DB_PATH):
         os.makedirs(DB_PATH, exist_ok=True)
     return lancedb.connect(DB_PATH)
 
+
 def get_stats():
     try:
         db = get_db()
         table_names = db.table_names()
-        
+
         tables_info = []
         total_vectors = 0
 
@@ -27,21 +29,19 @@ def get_stats():
             tbl = db.open_table(name)
             count = len(tbl)
             total_vectors += count
-            tables_info.append({
-                "name": name,
-                "vector_count": count
-            })
+            tables_info.append({"name": name, "vector_count": count})
 
         result = {
             "storage_directory": os.path.relpath(DB_PATH, BASE_DIR),
             "total_tables": len(table_names),
             "total_vectors": total_vectors,
-            "tables": tables_info
+            "tables": tables_info,
         }
         print(json.dumps(result))
     except Exception as e:
         sys.stderr.write(f"Error fetching stats: {str(e)}\n")
         sys.exit(1)
+
 
 def clear_table(table_name):
     try:
@@ -52,17 +52,18 @@ def clear_table(table_name):
             db.drop_table(table_name)
             result = {
                 "success": True,
-                "message": f"Table '{table_name}' dropped successfully."
+                "message": f"Table '{table_name}' dropped successfully.",
             }
         else:
             result = {
                 "success": False,
-                "message": f"Table '{table_name}' does not exist."
+                "message": f"Table '{table_name}' does not exist.",
             }
         print(json.dumps(result))
     except Exception as e:
         sys.stderr.write(f"Error dropping table '{table_name}': {str(e)}\n")
         sys.exit(1)
+
 
 def delete_document(table_name, stored_name, original_name):
     """Remove a PDF's vectors, including records written by older importers."""
@@ -83,6 +84,7 @@ def delete_document(table_name, stored_name, original_name):
         (cache_dir / cache_name).unlink(missing_ok=True)
     print(json.dumps({"success": True}))
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.stderr.write("Usage: python3 lancedb_admin.py <stats|clear> [table_name]\n")
@@ -99,7 +101,9 @@ if __name__ == "__main__":
         clear_table(sys.argv[2])
     elif command == "delete-document":
         if len(sys.argv) != 5:
-            sys.stderr.write("Usage: lancedb_admin.py delete-document <table> <stored_name> <original_name>\n")
+            sys.stderr.write(
+                "Usage: lancedb_admin.py delete-document <table> <stored_name> <original_name>\n"
+            )
             sys.exit(1)
         try:
             delete_document(sys.argv[2], sys.argv[3], sys.argv[4])

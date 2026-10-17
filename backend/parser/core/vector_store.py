@@ -7,6 +7,7 @@ Each knowledge base maps to one physical LanceDB table at
 data/vector_db/<table_name>.lance, providing physical isolation.
 Falls back to "kb_1" when unspecified.
 """
+
 import json
 import os
 import re
@@ -18,7 +19,9 @@ import pyarrow as pa
 import numpy as np
 
 # Resolve project root dynamically (576project/data/vector_db)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
 
 # Default table name — must match the initial KB created in backend/config/db.js
@@ -32,9 +35,7 @@ def _resolve_table_name(explicit: str = None) -> str:
     """Priority: explicit arg > KB_TABLE env var > default"""
     name = explicit or os.environ.get("KB_TABLE") or DEFAULT_TABLE_NAME
     if not _TABLE_NAME_RE.match(name):
-        raise ValueError(
-            f"Invalid KB table name: {name!r}. Only [A-Za-z0-9_] allowed."
-        )
+        raise ValueError(f"Invalid KB table name: {name!r}. Only [A-Za-z0-9_] allowed.")
     return name
 
 
@@ -53,15 +54,17 @@ class VectorStore:
         self._init_table()
 
     def _init_table(self):
-        schema = pa.schema([
-            pa.field("id", pa.string()),
-            pa.field("document_name", pa.string()),
-            pa.field("page", pa.int32()),
-            pa.field("chunk_index", pa.int32()),
-            pa.field("text", pa.string()),
-            pa.field("vector", pa.list_(pa.float32(), self.embedding_dim)),
-            pa.field("metadata", pa.string())
-        ])
+        schema = pa.schema(
+            [
+                pa.field("id", pa.string()),
+                pa.field("document_name", pa.string()),
+                pa.field("page", pa.int32()),
+                pa.field("chunk_index", pa.int32()),
+                pa.field("text", pa.string()),
+                pa.field("vector", pa.list_(pa.float32(), self.embedding_dim)),
+                pa.field("metadata", pa.string()),
+            ]
+        )
 
         if self.table_name not in self.db.table_names():
             self.db.create_table(self.table_name, schema=schema)
@@ -87,10 +90,13 @@ class VectorStore:
             prepared_records.append(record)
 
         self.table.add(prepared_records)
-        print(f"Added {len(prepared_records)} records to [{self.table_name}]", file=sys.stderr)
+        print(
+            f"Added {len(prepared_records)} records to [{self.table_name}]",
+            file=sys.stderr,
+        )
 
         try:
-            if hasattr(self.table, '_dataset') and self.table._dataset:
+            if hasattr(self.table, "_dataset") and self.table._dataset:
                 self.table._dataset.checkpoint()
                 print("Checkpoint completed", file=sys.stderr)
             else:
@@ -106,10 +112,11 @@ class VectorStore:
 
     def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict]:
         try:
-            results = self.table.search(
-                query_vector,
-                vector_column_name="vector"
-            ).limit(top_k).to_list()
+            results = (
+                self.table.search(query_vector, vector_column_name="vector")
+                .limit(top_k)
+                .to_list()
+            )
             return results
         except Exception as e:
             print(f"Search error in [{self.table_name}]: {e}", file=sys.stderr)
@@ -120,11 +127,11 @@ class VectorStore:
         return self.search(query_vector.tolist(), top_k)
 
     def get_all(self) -> List[Dict]:
-        return self.table.to_pandas().to_dict('records')
+        return self.table.to_pandas().to_dict("records")
 
     def get_by_document(self, document_name: str) -> List[Dict]:
         df = self.table.to_pandas()
-        return df[df["document_name"] == document_name].to_dict('records')
+        return df[df["document_name"] == document_name].to_dict("records")
 
     def delete_by_document(self, document_name: str) -> int:
         df = self.table.to_pandas()
@@ -134,7 +141,7 @@ class VectorStore:
         self._init_table()
 
         if not df_filtered.empty:
-            records = df_filtered.to_dict('records')
+            records = df_filtered.to_dict("records")
             self.table.add(records)
 
         return len(df) - len(df_filtered)
@@ -151,7 +158,7 @@ class VectorStore:
             "total_records": self.count(),
             "table_name": self.table_name,
             "db_path": self.db_path,
-            "embedding_dim": self.embedding_dim
+            "embedding_dim": self.embedding_dim,
         }
 
 

@@ -56,12 +56,10 @@ function CreateKbModal({ onClose, onCreated }) {
         {error && <div className="kb-error">{error}</div>}
 
         <div className="kb-modal-actions">
-          <button onClick={onClose} disabled={submitting}>Cancel</button>
-          <button
-            className="primary"
-            onClick={handleSubmit}
-            disabled={submitting}
-          >
+          <button onClick={onClose} disabled={submitting}>
+            Cancel
+          </button>
+          <button className="primary" onClick={handleSubmit} disabled={submitting}>
             {submitting ? 'Creating...' : 'Create'}
           </button>
         </div>

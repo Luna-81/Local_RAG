@@ -15,8 +15,13 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
 }
-.tab-btn:hover { color: #1e293b; }
-.tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+.tab-btn:hover {
+  color: #1e293b;
+}
+.tab-btn.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
 
 .filter-bar {
   display: flex;
@@ -62,12 +67,18 @@
   background: #fff;
   cursor: pointer;
 }
-.pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .modal-backdrop {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 .modal-box {
@@ -76,10 +87,17 @@
   border-radius: 12px;
   min-width: 380px;
   max-width: 90vw;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
-.modal-box h3 { margin: 0 0 16px; font-size: 16px; color: #1e293b; }
-.modal-box label { font-size: 13px; color: #475569; }
+.modal-box h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  color: #1e293b;
+}
+.modal-box label {
+  font-size: 13px;
+  color: #475569;
+}
 .modal-box input,
 .modal-box select {
   width: 100%;

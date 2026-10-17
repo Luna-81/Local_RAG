@@ -99,7 +99,11 @@ function DocumentList({
     try {
       const d = new Date(dateStr);
       if (isNaN(d.getTime())) return dateStr || 'N/A';
-      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return (
+        d.toLocaleDateString() +
+        ' ' +
+        d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      );
     } catch {
       return dateStr || 'N/A';
     }
@@ -113,7 +117,7 @@ function DocumentList({
   };
 
   const filteredDocs = (documents || []).filter((doc) =>
-    doc.originalName?.toLowerCase().includes(searchTerm.toLowerCase())
+    doc.originalName?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const uploadBtnLabel = () => {

@@ -2,6 +2,7 @@
 """
 PDF Parser - Extract text from PDF files using pypdf.PdfReader
 """
+
 import os
 from typing import List, Dict
 from pypdf import PdfReader
@@ -36,18 +37,17 @@ class PDFParser:
         for page_num, page in enumerate(self.reader.pages, 1):
             try:
                 text = page.extract_text()
-                pages.append({
-                    "page": page_num,
-                    "text": text.strip() if text else "",
-                    "has_text": bool(text and text.strip())
-                })
+                pages.append(
+                    {
+                        "page": page_num,
+                        "text": text.strip() if text else "",
+                        "has_text": bool(text and text.strip()),
+                    }
+                )
             except Exception as e:
-                pages.append({
-                    "page": page_num,
-                    "text": "",
-                    "has_text": False,
-                    "error": str(e)
-                })
+                pages.append(
+                    {"page": page_num, "text": "", "has_text": False, "error": str(e)}
+                )
         return pages
 
     def get_metadata(self) -> Dict:
@@ -77,5 +77,5 @@ def parse_pdf_with_metadata(file_path: str) -> Dict:
         "text": parser.extract_text(),
         "pages": parser.get_page_count(),
         "metadata": parser.get_metadata(),
-        "page_texts": parser.extract_pages()
+        "page_texts": parser.extract_pages(),
     }

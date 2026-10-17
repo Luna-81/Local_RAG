@@ -5,7 +5,7 @@
 #include <linux/in.h>
 #define WHITELIST_MAX 1024
 
-// ─── 统计数据 ────────────────────────────────────────
+// Packet statistics shared with the userspace manager.
 struct stats_val {
     __u64 passed_total;
     __u64 dropped_total;
@@ -15,7 +15,7 @@ struct stats_val {
     __u64 other_dropped;
 };
 
-// ─── Map 1：全局统计（key=0） ────────────────────────
+// Map 1: global statistics (key = 0).
 struct {
     __uint(type, BPF_MAP_TYPE_ARRAY);
     __uint(max_entries, 1);
@@ -23,16 +23,15 @@ struct {
     __type(value, struct stats_val);
 } global_stats SEC(".maps");
 
-// ─── Map 2：IP 白名单 ────────────────────────────────
+// Map 2: IPv4 whitelist.
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, WHITELIST_MAX);
-    __type(key, __u32);   // IPv4 (网络字节序)
-    __type(value, __u8);  // 1 = 白名单
+    __type(key, __u32);   // IPv4 address in network byte order.
+    __type(value, __u8);  // 1 means the address is allowlisted.
 } whitelist_map SEC(".maps");
 
-// ─── Map 3：per-IP 拒绝计数 ──────────────────────────
-// key: 源 IP，value: 该 IP 被拒的总包数
+// Map 3: cumulative packets dropped for each source IPv4 address.
 struct{
     __uint(type,BPF_MAP_TYPE_LRU_HASH);
     __uint(max_entries,10240);
@@ -40,7 +39,7 @@ struct{
     __type(value,__u64);
 }drop_by_ip SEC(".maps");
 
-// ─── 主程序 ──────────────────────────────────────────
+// Main XDP packet filter.
 SEC("xdp")
 int xdp_guardian_prog(struct xdp_md *ctx) {
     void *data_end = (void *)(long)ctx->data_end;
@@ -49,7 +48,7 @@ int xdp_guardian_prog(struct xdp_md *ctx) {
     struct iphdr *iph;
     struct ethhdr *eth = data;
 
-    // 兼容 native / generic：试着跳过以太网帧头
+    // Support native and generic modes by detecting an optional Ethernet header.
     if ((void *)(eth + 1) <= data_end &&
         eth->h_proto == __constant_htons(ETH_P_IP)) {
         iph = (void *)(eth + 1);
@@ -70,14 +69,14 @@ int xdp_guardian_prog(struct xdp_md *ctx) {
 
     __u32 src_ip = iph->saddr;
 
-    // ─── 白名单：直接放行 ─────────────────────────
+    // Allow traffic from whitelisted addresses.
     __u8 *white = bpf_map_lookup_elem(&whitelist_map, &src_ip);
     if (white && *white == 1) {
         if (stats) __sync_fetch_and_add(&stats->passed_total, 1);
         return XDP_PASS;
     }
 
-    // ─── 不在白名单：直接丢，按协议分类统计 ──────
+    // Drop non-whitelisted traffic and count it by protocol.
     if (stats) {
         __sync_fetch_and_add(&stats->dropped_total, 1);
 

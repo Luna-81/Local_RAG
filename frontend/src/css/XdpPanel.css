@@ -1,4 +1,6 @@
-.xdp-wrap { padding-top: 8px; }
+.xdp-wrap {
+  padding-top: 8px;
+}
 
 .xdp-cards {
   display: grid;
@@ -25,7 +27,9 @@
   font-weight: 600;
   color: #0f172a;
 }
-.xdp-card p.danger { color: #dc2626; }
+.xdp-card p.danger {
+  color: #dc2626;
+}
 
 .xdp-add-row {
   display: flex;
@@ -40,7 +44,9 @@
   font-size: 13px;
   outline: none;
 }
-.xdp-add-row input:focus { border-color: #2563eb; }
+.xdp-add-row input:focus {
+  border-color: #2563eb;
+}
 .xdp-add-row button {
   padding: 8px 16px;
   border: none;
@@ -51,31 +57,37 @@
   font-size: 13px;
   font-weight: 500;
 }
-.xdp-add-row button:hover:not(:disabled) { background: #1d4ed8; }
-.xdp-add-row button:disabled { background: #94a3b8; cursor: not-allowed; }
-
-@media (max-width: 720px) {
-  .xdp-cards { grid-template-columns: 1fr 1fr; }
+.xdp-add-row button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.xdp-add-row button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 
+@media (max-width: 720px) {
+  .xdp-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 
 .xdp-clear-history-btn {
-    margin-left: 12px;
-    font-size: 12px;
-    padding: 4px 12px;
-    background-color: #dc2626;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.15s ease;
+  margin-left: 12px;
+  font-size: 12px;
+  padding: 4px 12px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
 }
 
 .xdp-clear-history-btn:hover {
-    background-color: #b91c1c;
+  background-color: #b91c1c;
 }
 
 .xdp-clear-history-btn:active {
-    background-color: #991b1b;
+  background-color: #991b1b;
 }

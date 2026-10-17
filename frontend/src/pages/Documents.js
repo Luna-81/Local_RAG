@@ -69,7 +69,7 @@ function DocumentsPage() {
         if (showLoading) setLoading(false);
       }
     },
-    [kbId]
+    [kbId],
   );
 
   // ---- Polling ----
@@ -95,10 +95,7 @@ function DocumentsPage() {
       const res = await uploadDocumentApi(file, chunkSize, overlap, kbId);
       const uploadedFile = res?.file;
       if (uploadedFile) {
-        setDocuments((prev) => [
-          uploadedFile,
-          ...prev.filter((d) => d.id !== uploadedFile.id),
-        ]);
+        setDocuments((prev) => [uploadedFile, ...prev.filter((d) => d.id !== uploadedFile.id)]);
       }
       fetchDocuments(false);
       loadKbList();
@@ -109,9 +106,7 @@ function DocumentsPage() {
 
       if (status === 409) {
         const existing = err.response?.data?.existing;
-        const tip = existing?.kbName
-          ? `${msg}\n\nSwitch to that knowledge base?`
-          : msg;
+        const tip = existing?.kbName ? `${msg}\n\nSwitch to that knowledge base?` : msg;
         if (existing?.kbId && window.confirm(tip)) {
           setKbId(existing.kbId);
         }
@@ -170,11 +165,7 @@ function DocumentsPage() {
       )}
 
       {showManage && (
-        <ManageKbModal
-          list={kbList}
-          onClose={() => setShowManage(false)}
-          onChanged={loadKbList}
-        />
+        <ManageKbModal list={kbList} onClose={() => setShowManage(false)} onChanged={loadKbList} />
       )}
     </>
   );

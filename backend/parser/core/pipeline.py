@@ -2,6 +2,7 @@
 """
 Pipeline - Orchestrate the entire PDF processing workflow
 """
+
 import os
 from typing import Dict, List, Any
 
@@ -11,7 +12,9 @@ from core.vector_encoder import VectorEncoder
 from core.vector_store import VectorStore
 
 # Resolve project root dynamically (576project/data/vector_db)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
 
 
@@ -65,21 +68,23 @@ class PDFPipeline:
 
         records = []
         for i, (chunk_info, vector) in enumerate(zip(chunks, vectors)):
-            records.append({
-                "document_name": document_name,
-                "page": self._get_page_for_chunk(chunk_info, pages, i),
-                "chunk_index": i,
-                "text": chunk_info["text"],
-                "vector": vector.tolist(),
-                "metadata": {
-                    "title": metadata.get("title", ""),
-                    "author": metadata.get("author", ""),
-                    "total_pages": len(pages),
+            records.append(
+                {
+                    "document_name": document_name,
+                    "page": self._get_page_for_chunk(chunk_info, pages, i),
                     "chunk_index": i,
-                    "char_count": chunk_info["char_count"],
-                    "word_count": chunk_info["word_count"]
+                    "text": chunk_info["text"],
+                    "vector": vector.tolist(),
+                    "metadata": {
+                        "title": metadata.get("title", ""),
+                        "author": metadata.get("author", ""),
+                        "total_pages": len(pages),
+                        "chunk_index": i,
+                        "char_count": chunk_info["char_count"],
+                        "word_count": chunk_info["word_count"],
+                    },
                 }
-            })
+            )
 
         inserted = self.store.insert(records)
         print(f"  - Inserted: {inserted} records")
@@ -91,10 +96,12 @@ class PDFPipeline:
             "total_chunks": len(chunks),
             "records_inserted": inserted,
             "text_length": len(full_text),
-            "vector_dim": vectors.shape[1]
+            "vector_dim": vectors.shape[1],
         }
 
-    def _get_page_for_chunk(self, chunk_info: Dict, pages: List[Dict], chunk_index: int) -> int:
+    def _get_page_for_chunk(
+        self, chunk_info: Dict, pages: List[Dict], chunk_index: int
+    ) -> int:
         total_chunks = chunk_info["total_chunks"]
         total_pages = len(pages)
 
@@ -131,6 +138,8 @@ def process_pdf_file(
     return pipeline.process(file_path)
 
 
-def search_pdf_content(query: str, db_path: str = DEFAULT_DB_PATH, top_k: int = 5) -> List[Dict]:
+def search_pdf_content(
+    query: str, db_path: str = DEFAULT_DB_PATH, top_k: int = 5
+) -> List[Dict]:
     pipeline = PDFPipeline(db_path=db_path)
     return pipeline.search(query, top_k)

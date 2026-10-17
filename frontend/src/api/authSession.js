@@ -2,8 +2,12 @@
 const tokenKey = 'accessToken';
 
 export const getAccessToken = () => sessionStorage.getItem(tokenKey);
-export const setAccessToken = (token) => { sessionStorage.setItem(tokenKey, token); };
-export const clearAccessToken = () => { sessionStorage.removeItem(tokenKey); };
+export const setAccessToken = (token) => {
+  sessionStorage.setItem(tokenKey, token);
+};
+export const clearAccessToken = () => {
+  sessionStorage.removeItem(tokenKey);
+};
 
 // Discard credentials stored by older versions of the app.
 localStorage.removeItem('token');

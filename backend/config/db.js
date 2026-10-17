@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 // Ensure data directory exists
 const dataDir = path.join(__dirname, '../../data');
 if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  fs.mkdirSync(dataDir, { recursive: true });
 }
 
 // Initialize SQLite3 database
@@ -15,8 +15,8 @@ const db = new Database(path.join(dataDir, 'app.sqlite3'));
 db.pragma('journal_mode = WAL');
 
 function initDatabase() {
-    // 1. Users table
-    db.exec(`
+  // 1. Users table
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
@@ -26,8 +26,8 @@ function initDatabase() {
     );
     `);
 
-    // 2. Conversations table
-    db.exec(`
+  // 2. Conversations table
+  db.exec(`
         CREATE TABLE IF NOT EXISTS conversations (
             id TEXT PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -38,17 +38,17 @@ function initDatabase() {
         );
     `);
 
-    try {
-        db.exec(`ALTER TABLE conversations ADD COLUMN is_pinned INTEGER DEFAULT 0;`);
-    } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE conversations ADD COLUMN is_pinned INTEGER DEFAULT 0;`);
+  } catch (e) {}
 
-    try {
-        db.exec(`ALTER TABLE conversations ADD COLUMN kb_id INTEGER;`);
-        db.exec(`CREATE INDEX IF NOT EXISTS idx_conv_kb ON conversations(kb_id);`);
-    } catch (e) {}
+  try {
+    db.exec(`ALTER TABLE conversations ADD COLUMN kb_id INTEGER;`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_conv_kb ON conversations(kb_id);`);
+  } catch (e) {}
 
-    // 3. File metadata table (with multi-KB fields)
-    db.exec(`
+  // 3. File metadata table (with multi-KB fields)
+  db.exec(`
         CREATE TABLE IF NOT EXISTS filelist (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             filename TEXT UNIQUE NOT NULL,
@@ -62,11 +62,11 @@ function initDatabase() {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     `);
-    // Upload workers are children of this server and cannot survive its restart.
-    db.prepare("UPDATE filelist SET status = 'failed' WHERE status = 'processing'").run();
+  // Upload workers are children of this server and cannot survive its restart.
+  db.prepare("UPDATE filelist SET status = 'failed' WHERE status = 'processing'").run();
 
-    // 4. QA statistics table
-    db.exec(`
+  // 4. QA statistics table
+  db.exec(`
         CREATE TABLE IF NOT EXISTS qa_stats (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -76,35 +76,45 @@ function initDatabase() {
         );
     `);
 
-    const columns = db.prepare('PRAGMA table_info(users)').all();
-    if (!columns.some(column => column.name === 'token_version')) {
-        db.exec('ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0');
+  const columns = db.prepare('PRAGMA table_info(users)').all();
+  if (!columns.some((column) => column.name === 'token_version')) {
+    db.exec('ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0');
+  }
+  // Migrate existing plaintext passwords once, invalidating previous sessions.
+  db.transaction(() => {
+    for (const user of db.prepare('SELECT id, password FROM users').all()) {
+      if (!/^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(user.password)) {
+        db.prepare(
+          'UPDATE users SET password = ?, token_version = token_version + 1 WHERE id = ?',
+        ).run(bcrypt.hashSync(user.password, 12), user.id);
+      }
     }
-    // Migrate existing plaintext passwords once, invalidating previous sessions.
-    db.transaction(() => {
-        for (const user of db.prepare('SELECT id, password FROM users').all()) {
-            if (!/^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(user.password)) {
-                db.prepare('UPDATE users SET password = ?, token_version = token_version + 1 WHERE id = ?')
-                    .run(bcrypt.hashSync(user.password, 12), user.id);
-            }
-        }
-    })();
+  })();
 
-    // Seed default admin
-    const adminCheck = db.prepare('SELECT * FROM users WHERE username = ?').get('admin');
-    if (!adminCheck) {
-        const initialPassword = process.env.INITIAL_ADMIN_PASSWORD;
-        if (!initialPassword || initialPassword.length < 12 || Buffer.byteLength(initialPassword) > 72) {
-            throw new Error('Set INITIAL_ADMIN_PASSWORD (12–72 bytes, at least 12 characters) for first startup.');
-        }
-        db.prepare('INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)')
-          .run('admin', bcrypt.hashSync(initialPassword, 12), 3);
+  // Seed default admin
+  const adminCheck = db.prepare('SELECT * FROM users WHERE username = ?').get('admin');
+  if (!adminCheck) {
+    const initialPassword = process.env.INITIAL_ADMIN_PASSWORD;
+    if (
+      !initialPassword ||
+      initialPassword.length < 12 ||
+      Buffer.byteLength(initialPassword) > 72
+    ) {
+      throw new Error(
+        'Set INITIAL_ADMIN_PASSWORD (12–72 bytes, at least 12 characters) for first startup.',
+      );
     }
+    db.prepare('INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)').run(
+      'admin',
+      bcrypt.hashSync(initialPassword, 12),
+      3,
+    );
+  }
 
-    console.log('SQLite3 database initialized successfully.');
+  console.log('SQLite3 database initialized successfully.');
 
-    // 5. Audit log
-    db.exec(`
+  // 5. Audit log
+  db.exec(`
     CREATE TABLE IF NOT EXISTS audit_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
@@ -117,11 +127,11 @@ function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     `);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);`);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id);`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id);`);
 
-    // 6. XDP whitelist (persistent, restored after restart)
-    db.exec(`
+  // 6. XDP whitelist (persistent, restored after restart)
+  db.exec(`
     CREATE TABLE IF NOT EXISTS xdp_whitelist (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ip TEXT UNIQUE NOT NULL,
@@ -129,10 +139,10 @@ function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     `);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_xdp_whitelist_ip ON xdp_whitelist(ip);`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_xdp_whitelist_ip ON xdp_whitelist(ip);`);
 
-    // 7. XDP drop history (persistent per-IP counters)
-    db.exec(`
+  // 7. XDP drop history (persistent per-IP counters)
+  db.exec(`
     CREATE TABLE IF NOT EXISTS xdp_drop_history (
         ip TEXT PRIMARY KEY,
         total_count INTEGER DEFAULT 0,
@@ -141,14 +151,14 @@ function initDatabase() {
         last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     `);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_xdp_drop_count ON xdp_drop_history(total_count DESC);`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_xdp_drop_count ON xdp_drop_history(total_count DESC);`);
 
-    // ==========================================================
-    // 8. Multi-KB support
-    // ==========================================================
+  // ==========================================================
+  // 8. Multi-KB support
+  // ==========================================================
 
-    // 8.1 Knowledge bases table
-    db.exec(`
+  // 8.1 Knowledge bases table
+  db.exec(`
     CREATE TABLE IF NOT EXISTS knowledge_bases (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE NOT NULL,
@@ -158,20 +168,22 @@ function initDatabase() {
     );
     `);
 
-    // 8.2 Indexes
-    //   - content_hash unique globally: same file cannot exist in any KB twice
-    //   - kb_id used for listing files by KB
-    db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_filelist_hash ON filelist(content_hash);`);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_filelist_kb ON filelist(kb_id);`);
+  // 8.2 Indexes
+  //   - content_hash unique globally: same file cannot exist in any KB twice
+  //   - kb_id used for listing files by KB
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_filelist_hash ON filelist(content_hash);`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_filelist_kb ON filelist(kb_id);`);
 
-    // 8.3 First run: create the initial KB for UI
-    const kbCount = db.prepare('SELECT COUNT(*) AS c FROM knowledge_bases').get().c;
-    if (kbCount === 0) {
-        db.prepare(
-            'INSERT INTO knowledge_bases (name, description, table_name) VALUES (?, ?, ?)'
-        ).run('default', 'Default knowledge base', 'kb_1');
-        console.log('Created initial KB: default (table=kb_1)');
-    }
+  // 8.3 First run: create the initial KB for UI
+  const kbCount = db.prepare('SELECT COUNT(*) AS c FROM knowledge_bases').get().c;
+  if (kbCount === 0) {
+    db.prepare('INSERT INTO knowledge_bases (name, description, table_name) VALUES (?, ?, ?)').run(
+      'default',
+      'Default knowledge base',
+      'kb_1',
+    );
+    console.log('Created initial KB: default (table=kb_1)');
+  }
 }
 
 module.exports = { db, initDatabase };

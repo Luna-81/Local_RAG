@@ -47,7 +47,7 @@ router.get(
         });
       }
     });
-  }
+  },
 );
 
 /**
@@ -79,7 +79,7 @@ router.post(
         });
       }
     });
-  }
+  },
 );
 
 module.exports = router;

@@ -1,4 +1,5 @@
 """Reduce the dimension of the chunks of a book and perform clustering, then transform it into a knowledge point distribution map."""
+
 import json
 import os
 import re
@@ -11,6 +12,7 @@ from sklearn.cluster import KMeans
 
 try:
     from umap import UMAP
+
     HAS_UMAP = True
 except ImportError:
     HAS_UMAP = False
@@ -18,18 +20,18 @@ except ImportError:
 from query.generate import generate_answer
 
 # ── path ─────────────────────────────────────────────
-PARSER_DIR  = Path(__file__).resolve().parent
-PROJECT_DIR = PARSER_DIR.parents[1]              # ~/576project
-VECTOR_DB   = PROJECT_DIR / "data" / "vector_db"
+PARSER_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = PARSER_DIR.parents[1]  # ~/576project
+VECTOR_DB = PROJECT_DIR / "data" / "vector_db"
 
 # Multi-KB: table name from env, default to the initial KB table
-TABLE_NAME  = os.environ.get("KB_TABLE", "kb_1")
+TABLE_NAME = os.environ.get("KB_TABLE", "kb_1")
 
 # Cache is namespaced per KB to avoid filename collisions across KBs
-CACHE_DIR   = PROJECT_DIR / "data" / "knowledge_maps" / TABLE_NAME
+CACHE_DIR = PROJECT_DIR / "data" / "knowledge_maps" / TABLE_NAME
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-DOC_FIELD   = "document_name"
+DOC_FIELD = "document_name"
 
 # ── LLM prompt ───────────────────────────────────────
 PROMPT = """You are a knowledge extraction assistant.
@@ -43,7 +45,7 @@ Chunks:
 
 
 def load_chunks(doc_name: str):
-    """按 document_name 从 LanceDB 取该书的全部 chunk。"""
+    """Load every chunk for a document from LanceDB."""
     db = lancedb.connect(str(VECTOR_DB))
 
     try:
@@ -112,7 +114,7 @@ def build_map(doc_name: str) -> dict:
     if n == 0:
         return {"doc_name": doc_name, "points": [], "clusters": []}
 
-    k = max(2, min(int(round(n ** 0.5)), 12, n))
+    k = max(2, min(int(round(n**0.5)), 12, n))
     labels = KMeans(n_clusters=k, n_init="auto", random_state=42).fit_predict(vectors)
     coords = normalize(reduce_2d(vectors))
 
@@ -132,16 +134,18 @@ def build_map(doc_name: str) -> dict:
         idx = [i for i in range(n) if labels[i] == lb]
         merged = "\n---\n".join(chunks[i]["text"] for i in idx)[:3000]
         info = _parse_json(generate_answer(PROMPT.format(chunks=merged)))
-        clusters.append({
-            "id": int(lb),
-            "x": float(np.mean([coords[i, 0] for i in idx])),
-            "y": float(np.mean([coords[i, 1] for i in idx])),
-            "label": info.get("label") or f"Topic {lb + 1}",
-            "content": info.get("content", ""),
-            "chunk_count": len(idx),
-            "pages": sorted({chunks[i]["page"] for i in idx}),
-            "chunk_ids": [chunks[i]["id"] for i in idx],
-        })
+        clusters.append(
+            {
+                "id": int(lb),
+                "x": float(np.mean([coords[i, 0] for i in idx])),
+                "y": float(np.mean([coords[i, 1] for i in idx])),
+                "label": info.get("label") or f"Topic {lb + 1}",
+                "content": info.get("content", ""),
+                "chunk_count": len(idx),
+                "pages": sorted({chunks[i]["page"] for i in idx}),
+                "chunk_ids": [chunks[i]["id"] for i in idx],
+            }
+        )
 
     return {"doc_name": doc_name, "points": points, "clusters": clusters}
 
@@ -165,9 +169,9 @@ def list_documents():
 
     grouped = (
         df.groupby(DOC_FIELD)
-          .size()
-          .reset_index(name="chunk_count")
-          .sort_values("chunk_count", ascending=False)
+        .size()
+        .reset_index(name="chunk_count")
+        .sort_values("chunk_count", ascending=False)
     )
     return grouped.to_dict("records")
 
@@ -185,10 +189,15 @@ if __name__ == "__main__":
         cache_file(args.doc).write_text(
             json.dumps(result, ensure_ascii=False), encoding="utf-8"
         )
-        print(json.dumps({
-            "ok": True, "doc": args.doc,
-            "points": len(result["points"]),
-            "clusters": len(result["clusters"]),
-        }))
+        print(
+            json.dumps(
+                {
+                    "ok": True,
+                    "doc": args.doc,
+                    "points": len(result["points"]),
+                    "clusters": len(result["clusters"]),
+                }
+            )
+        )
     else:
         ap.error("either --doc or --list is required")
