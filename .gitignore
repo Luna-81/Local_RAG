@@ -44,11 +44,9 @@ xdp/xdp_guardian
 # --- Logs ---
 *.log
 
-# --- Docs (not ready to publish) ---
+# Local submission documentation; include it manually in the teacher's archive.
 docs/
 
-# sh
-start_all.sh
-stop_all.sh
+# --- Local ad hoc parser scripts ---
 backend/parser/test_all.sh
 backend/parser/test_ask.sh
