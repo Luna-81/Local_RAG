@@ -9,7 +9,8 @@ function NewChatModal({ kbList = [], onClose, onCreate }) {
     if (!selected) return;
     setBusy(true);
     try {
-      await onCreate(selected);
+      const created = await onCreate(selected);
+      if (created) onClose();
     } finally {
       setBusy(false);
     }
