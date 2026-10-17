@@ -1,13 +1,13 @@
 /* src/css/Login.css */
 
-/* 1. 确保全局框模型计算正常 */
+/* Keep box sizing consistent across the login page */
 .login-container *,
 .login-container *::before,
 .login-container *::after {
   box-sizing: border-box;
 }
 
-/* 2. 页面居中容器 */
+/* Center the login page content */
 .login-container {
   display: flex;
   justify-content: center;
@@ -17,7 +17,7 @@
   padding: 20px;
 }
 
-/* 3. 登录卡片 */
+/* Login card */
 .login-card {
   background: #ffffff;
   padding: 2.5rem;
@@ -37,7 +37,7 @@
   font-weight: 600;
 }
 
-/* 4. 表单项强制换行与布局 */
+/* Form field layout */
 .form-group {
   margin-bottom: 1.25rem;
   display: flex;
@@ -69,7 +69,7 @@
   box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
 }
 
-/* 5. 按钮样式 */
+/* Submit button */
 .btn-primary {
   width: 100%;
   padding: 0.8rem;
@@ -93,7 +93,7 @@
   cursor: not-allowed;
 }
 
-/* 6. 错误信息提示 */
+/* Error message */
 .error-banner {
   background-color: #fde8e8;
   color: #e53e3e;

@@ -1,4 +1,4 @@
-/* ─── 页面容器 ─────────────────────────── */
+/* Page container */
 .page-container {
   max-width: 1100px;
   margin: 0 auto;
@@ -21,7 +21,57 @@
   color: #1e293b;
 }
 
-/* ─── 顶部三张概览卡片 ─────────────────── */
+.lancedb-kb-name {
+  font-weight: 600;
+}
+
+.lancedb-table-name {
+  margin-left: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.lancedb-documents-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+
+.lancedb-section-heading {
+  margin: 0;
+}
+
+.lancedb-kb-label {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.lancedb-kb-select {
+  min-width: 180px;
+  padding: 6px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+}
+
+.lancedb-documents-table {
+  margin-top: 12px;
+}
+
+.lancedb-selected-row {
+  background: #eff6ff;
+}
+
+.lancedb-select-prompt {
+  margin-top: 16px;
+  color: #64748b;
+}
+
+/* Summary cards */
 .overview-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -66,7 +116,7 @@
   font-family: 'SF Mono', Monaco, Consolas, monospace;
 }
 
-/* ─── 表格 ─────────────────────────────── */
+/* Tables */
 .table-wrapper {
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -110,7 +160,7 @@
   background: #f8fafc;
 }
 
-/* ─── 按钮 ─────────────────────────────── */
+/* Buttons */
 .admin-table button {
   padding: 6px 14px;
   border: 1px solid #cbd5e1;
@@ -139,7 +189,7 @@
   border-color: #f87171;
 }
 
-/* ─── 提示条 ───────────────────────────── */
+/* Notice banners */
 .info-banner {
   padding: 12px 16px;
   border-radius: 8px;
@@ -161,7 +211,7 @@
   white-space: pre-wrap;
 }
 
-/* ─── 小屏适配 ─────────────────────────── */
+/* Small-screen layout */
 @media (max-width: 720px) {
   .overview-cards {
     grid-template-columns: 1fr;

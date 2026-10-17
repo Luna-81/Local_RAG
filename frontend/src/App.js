@@ -69,13 +69,13 @@ function App() {
   const defaultRedirectPath = allowedRoutes[0]?.path || '/user';
   const currentUserWithPerms = user ? { ...user, permissions: userPermissions } : null;
 
-  if (restoringSession) return <div style={{ padding: '2rem' }}>Restoring session...</div>;
+  if (restoringSession) return <div className="session-restoring">Restoring session...</div>;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell">
       {user && <Navbar user={currentUserWithPerms} onLogout={handleLogout} />}
 
-      <main style={{ flex: 1, padding: '1.5rem', background: '#f8fafc' }}>
+      <main className="app-main">
         <Routes>
           <Route
             path="/login"

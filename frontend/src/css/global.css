@@ -33,63 +33,26 @@ body {
   overflow-y: auto;
 }
 
-.app {
+.app-shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.main-container {
-  display: flex;
+.app-main {
   flex: 1;
-  padding: 24px;
-  gap: 16px;
-  background: var(--bg-color);
-  box-sizing: border-box;
+  padding: 1.5rem;
+  background: #f8fafc;
 }
 
-/* ==========================================
-   3. Navbar
-   ========================================== */
-.navbar {
-  background: #2c3e50;
-  padding: 12px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--primary-color);
-  flex-shrink: 0;
+.session-restoring {
+  padding: 2rem;
 }
 
-.navbar-brand {
-  color: white;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+.utility-cell-centered {
+  text-align: center;
 }
 
-.navbar-center {
-  display: flex;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 4px;
-  border-radius: var(--radius-md);
-}
-
-.nav-link {
-  background: transparent;
-  color: #a0c4e8;
-  border: none;
-  padding: 8px 24px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-.nav-link.active {
-  background: var(--primary-color);
-  color: white;
-  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+.utility-break-word {
+  word-break: break-all;
 }

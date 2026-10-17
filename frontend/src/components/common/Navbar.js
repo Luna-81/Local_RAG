@@ -4,13 +4,14 @@ import { logoutApi } from '../../api/authApi';
 import { clearAccessToken } from '../../api/authSession';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ALL_ROUTES } from '../../config/routes';
+import '../../css/Navbar.css';
 
 const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const userPermissions = user?.permissions || [];
 
-  // Filter nav items based on user permissions
+  // Show only routes allowed by the current user's permissions.
   const navItems = ALL_ROUTES.filter(
     (route) => route.isNav && userPermissions.includes(route.permission),
   );
@@ -30,75 +31,30 @@ const Navbar = ({ user, onLogout }) => {
   };
 
   return (
-    <nav style={styles.nav}>
-      <div style={styles.brand}>System Hub</div>
-      <div style={styles.links}>
+    <nav className="app-navbar">
+      <div className="app-navbar-brand">System Hub</div>
+      <div className="app-navbar-links">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
-            <Link key={item.path} to={item.path} style={isActive ? styles.linkActive : styles.link}>
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`app-navbar-link${isActive ? ' active' : ''}`}
+            >
               {item.label}
             </Link>
           );
         })}
       </div>
-      <div style={styles.userSection}>
-        <span style={styles.userInfo}>{user?.username}</span>
-        <button onClick={handleLogoutClick} style={styles.logoutBtn}>
+      <div className="app-navbar-user">
+        <span className="app-navbar-username">{user?.username}</span>
+        <button onClick={handleLogoutClick} className="app-navbar-logout">
           Logout
         </button>
       </div>
     </nav>
   );
-};
-
-const styles = {
-  nav: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '0.8rem 2rem',
-    background: '#0f172a',
-    color: '#fff',
-  },
-  brand: {
-    fontSize: '1.2rem',
-    fontWeight: 'bold',
-  },
-  links: {
-    display: 'flex',
-    gap: '1.5rem',
-  },
-  link: {
-    color: '#e2e8f0',
-    textDecoration: 'none',
-    fontWeight: '500',
-    transition: 'color 0.15s',
-  },
-
-  linkActive: {
-    color: '#fde68a',
-    textDecoration: 'none',
-    fontWeight: '700',
-    transition: 'color 0.15s',
-  },
-  userSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  userInfo: {
-    fontSize: '0.9rem',
-    color: '#94a3b8',
-  },
-  logoutBtn: {
-    padding: '0.4rem 0.8rem',
-    background: '#ef4444',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
 };
 
 export default Navbar;

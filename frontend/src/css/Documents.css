@@ -99,6 +99,18 @@
   background: #eff6ff;
 }
 
+.drop-zone.disabled {
+  opacity: 0.55;
+}
+
+.document-file-input {
+  display: none;
+}
+
+.document-upload-button {
+  margin-top: 16px;
+}
+
 .drop-zone-prompt .icon {
   font-size: 14px;
   font-weight: 700;
@@ -710,6 +722,10 @@
 
 .kb-table td button + button {
   margin-left: 6px;
+}
+
+.kb-empty-cell {
+  text-align: center;
 }
 
 /* ---------- Misc ---------- */

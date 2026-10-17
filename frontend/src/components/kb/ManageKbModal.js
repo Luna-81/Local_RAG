@@ -75,7 +75,7 @@ function ManageKbModal({ list, onClose, onChanged }) {
           <tbody>
             {list.length === 0 && (
               <tr>
-                <td colSpan={4} style={{ textAlign: 'center' }}>
+                <td colSpan={4} className="kb-empty-cell">
                   No knowledge bases yet
                 </td>
               </tr>

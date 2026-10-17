@@ -12,7 +12,7 @@
   box-sizing: border-box;
 }
 
-/* 1. 左侧 Sidebar 容器 */
+/* Sidebar layout */
 .chat-sidebar {
   background: #ffffff;
   border-radius: 12px;
@@ -60,7 +60,7 @@
   background: #1d4ed8;
 }
 
-/* 消息列表项 */
+/* Message list items */
 .chat-list-items {
   flex: 1;
   overflow-y: auto;
@@ -165,7 +165,7 @@
   background: #f8fafc;
 }
 
-/* 对话气泡样式 */
+/* Chat message bubbles */
 .message {
   display: flex;
   flex-direction: column;
@@ -252,12 +252,26 @@
   color: #94a3b8;
 }
 
+.chat-modal-message,
+.chat-modal-instructions {
+  color: #64748b;
+}
+
+.chat-modal-message {
+  font-size: 14px;
+}
+
+.chat-modal-instructions {
+  margin: -8px 0 16px;
+  font-size: 13px;
+}
+
 .empty-icon {
   font-size: 40px;
   margin-bottom: 8px;
 }
 
-/* ══ 操作按钮（置顶 / 重命名 / 删除）══ */
+/* Conversation actions: pin, rename, and delete */
 .chat-item-actions {
   display: flex;
   gap: 2px;
@@ -297,12 +311,12 @@
   transform: scale(0.95);
 }
 
-/* 删除按钮：hover 变红 */
+/* Highlight the delete action on hover */
 .btn-action-icon[title='Delete']:hover {
   background: #fee2e2;
 }
 
-/* 整个会话行：默认隐藏按钮，hover 才显示（可选，更清爽） */
+/* Keep conversation actions hidden until the row is hovered */
 .chat-item-actions {
   opacity: 0;
   transition: opacity 0.15s;
@@ -313,7 +327,7 @@
   opacity: 1;
 }
 
-/* ══ 标题栏的编辑按钮 ══ */
+/* Header editing controls */
 .chat-header-name-container {
   display: flex;
   align-items: center;
