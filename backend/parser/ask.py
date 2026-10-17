@@ -2,6 +2,7 @@
 """
 Complete Q&A Pipeline - Search + Build Prompt + Generate Answer
 """
+
 import sys
 import json
 import warnings
@@ -12,7 +13,9 @@ from query.generate import generate_answer
 warnings.filterwarnings("ignore")
 
 
-def ask_question(question: str, top_k: int = 5, temperature: float = 0.1, verbose: bool = True):
+def ask_question(
+    question: str, top_k: int = 5, temperature: float = 0.1, verbose: bool = True
+):
     """
     Returns:
         (answer: str | None, sources: list[dict])
@@ -34,11 +37,17 @@ def ask_question(question: str, top_k: int = 5, temperature: float = 0.1, verbos
     # 2. Build prompt
     if results:
         if verbose:
-            print(f"\n[1] Found {len(results)} relevant chunks. Building prompt...", file=sys.stderr)
+            print(
+                f"\n[1] Found {len(results)} relevant chunks. Building prompt...",
+                file=sys.stderr,
+            )
         prompt = build_prompt(question, results)
     else:
         if verbose:
-            print("\n[1] No relevant content found in vector DB. Using raw question...", file=sys.stderr)
+            print(
+                "\n[1] No relevant content found in vector DB. Using raw question...",
+                file=sys.stderr,
+            )
         prompt = question
 
     if verbose:
@@ -61,12 +70,14 @@ def _serialize_sources(results):
     out = []
     for r in results or []:
         text = r.get("text") or ""
-        out.append({
-            "document_name": r.get("document_name", "Unknown"),
-            "page": r.get("page", 0),
-            "text": text[:200] + ("..." if len(text) > 200 else ""),
-            "score": float(r.get("score", r.get("_distance", 0.0)) or 0.0),
-        })
+        out.append(
+            {
+                "document_name": r.get("document_name", "Unknown"),
+                "page": r.get("page", 0),
+                "text": text[:200] + ("..." if len(text) > 200 else ""),
+                "score": float(r.get("score", r.get("_distance", 0.0)) or 0.0),
+            }
+        )
     return out
 
 
@@ -88,7 +99,9 @@ if __name__ == "__main__":
         sys.stdout = sys.stderr
 
         try:
-            answer, results = ask_question(question, top_k=5, temperature=0.1, verbose=False)
+            answer, results = ask_question(
+                question, top_k=5, temperature=0.1, verbose=False
+            )
         except Exception:
             answer, results = None, []
 
@@ -96,8 +109,11 @@ if __name__ == "__main__":
 
         payload = {
             "success": bool(answer and answer.strip()),
-            "answer": answer if (answer and answer.strip())
-                      else "Failed to generate answer. Please verify vector DB index or llama-server status.",
+            "answer": (
+                answer
+                if (answer and answer.strip())
+                else "Failed to generate answer. Please verify vector DB index or llama-server status."
+            ),
             "sources": _serialize_sources(results),
         }
         print(json.dumps(payload, ensure_ascii=False))

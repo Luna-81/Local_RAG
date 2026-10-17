@@ -32,8 +32,13 @@
   font-weight: 500;
   white-space: nowrap;
 }
-.km-toolbar button:hover:not(:disabled) { background: #1d4ed8; }
-.km-toolbar button:disabled { background: #94a3b8; cursor: not-allowed; }
+.km-toolbar button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.km-toolbar button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
 
 .km-body {
   display: grid;
@@ -47,8 +52,13 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
 }
-.km-node { cursor: pointer; transition: all 0.15s; }
-.km-node:hover circle { fill: #1d4ed8; }
+.km-node {
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.km-node:hover circle {
+  fill: #1d4ed8;
+}
 
 .km-detail {
   border: 1px solid #e2e8f0;
@@ -57,7 +67,11 @@
   min-height: 220px;
   background: #fff;
 }
-.km-hint { color: #94a3b8; font-size: 13px; margin: 0; }
+.km-hint {
+  color: #94a3b8;
+  font-size: 13px;
+  margin: 0;
+}
 .km-card h4 {
   margin: 0 0 10px;
   font-size: 15px;

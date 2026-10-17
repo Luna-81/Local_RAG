@@ -3,7 +3,7 @@ BPFTOOL=/usr/local/bin/bpftool-core
 IFACE=${IFACE:-eth0}
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# 找一个 map 的最新 id
+# find the latest ID of the map
 find_map_id() {
     local name="$1"
     $BPFTOOL map show -j 2>/dev/null | python3 -c "

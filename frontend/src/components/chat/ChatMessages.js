@@ -11,7 +11,7 @@ function ChatMessages({ messages = [], loading = false }) {
 
   return (
     <div className="chat-messages">
-      {(!messages || messages.length === 0) ? (
+      {!messages || messages.length === 0 ? (
         <div className="empty-state">
           <p>Ask a question to start the conversation</p>
         </div>

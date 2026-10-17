@@ -48,7 +48,9 @@ function NewChatModal({ kbList = [], onClose, onCreate }) {
         )}
 
         <div className="kb-modal-actions">
-          <button onClick={onClose} disabled={busy}>Cancel</button>
+          <button onClick={onClose} disabled={busy}>
+            Cancel
+          </button>
           <button
             className="primary"
             onClick={handleCreate}

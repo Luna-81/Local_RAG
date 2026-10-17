@@ -9,7 +9,7 @@ export const fetchXdpStats = async () => {
 };
 
 /**
- * get whilelist 
+ * get whilelist
  */
 export const fetchWhitelist = async () => {
   const { data } = await api.get('/xdp/whitelist');
@@ -18,7 +18,7 @@ export const fetchWhitelist = async () => {
 
 /**
  * put ip to whilelist
- * @param {string} ip 
+ * @param {string} ip
  */
 export const addWhitelistIp = async (ip) => {
   const { data } = await api.post('/xdp/whitelist', { ip });
@@ -27,10 +27,10 @@ export const addWhitelistIp = async (ip) => {
 
 /**
  * delete ip from whilelist
- * @param {string} ip 
+ * @param {string} ip
  */
 export const removeWhitelistIp = async (ip) => {
-  // axios.delete 传递 body 需要包装在 data 属性中
+  // Axios expects DELETE request bodies inside the data property.
   const { data } = await api.delete('/xdp/whitelist', { data: { ip } });
   return data;
 };

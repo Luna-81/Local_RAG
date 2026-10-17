@@ -3,13 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { getKnowledgeMapApi, buildKnowledgeMapApi } from '../../api/knowledgeApi';
 import '../../css/KnowledgeMap.css';
 
-const W = 720, H = 460, PAD = 44;
+const W = 720,
+  H = 460,
+  PAD = 44;
 
 const KnowledgeMap = ({ docName, displayName, kbId }) => {
-  const [data, setData]         = useState(null);
+  const [data, setData] = useState(null);
   const [selected, setSelected] = useState(null);
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setSelected(null);
@@ -18,8 +20,8 @@ const KnowledgeMap = ({ docName, displayName, kbId }) => {
     if (!docName || !kbId) return;
 
     getKnowledgeMapApi(docName, kbId)
-      .then(r => setData(r))
-      .catch(e => setError(e.response?.data?.message || 'Failed to load map.'));
+      .then((r) => setData(r))
+      .catch((e) => setError(e.response?.data?.message || 'Failed to load map.'));
   }, [docName, kbId]);
 
   const handleBuild = async () => {
@@ -38,7 +40,7 @@ const KnowledgeMap = ({ docName, displayName, kbId }) => {
 
   const toXY = (x, y) => [PAD + x * (W - 2 * PAD), H - PAD - y * (H - 2 * PAD)];
   const hasData = data?.clusters?.length > 0;
-  const active  = selected != null ? data.clusters.find(c => c.id === selected) : null;
+  const active = selected != null ? data.clusters.find((c) => c.id === selected) : null;
 
   return (
     <div className="km-wrap">
@@ -53,7 +55,9 @@ const KnowledgeMap = ({ docName, displayName, kbId }) => {
       {!hasData && !loading && !error && (
         <p className="km-hint">No map yet. Click the button above to generate.</p>
       )}
-      {loading && <p className="km-hint">Dimensionality reduction + clustering + LLM extraction…</p>}
+      {loading && (
+        <p className="km-hint">Dimensionality reduction + clustering + LLM extraction…</p>
+      )}
 
       {hasData && (
         <div className="km-body">
@@ -62,22 +66,37 @@ const KnowledgeMap = ({ docName, displayName, kbId }) => {
               const [cx, cy] = toXY(p.x, p.y);
               const on = selected === p.cluster;
               return (
-                <circle key={i} cx={cx} cy={cy} r={on ? 3.5 : 2.5}
-                        fill={on ? '#1d4ed8' : '#cbd5e1'}
-                        opacity={selected == null || on ? 1 : 0.3} />
+                <circle
+                  key={i}
+                  cx={cx}
+                  cy={cy}
+                  r={on ? 3.5 : 2.5}
+                  fill={on ? '#1d4ed8' : '#cbd5e1'}
+                  opacity={selected == null || on ? 1 : 0.3}
+                />
               );
             })}
-            {data.clusters.map(c => {
+            {data.clusters.map((c) => {
               const [cx, cy] = toXY(c.x, c.y);
               const on = selected === c.id;
               return (
-                <g key={c.id} className="km-node"
-                   onClick={() => setSelected(on ? null : c.id)}>
-                  <circle cx={cx} cy={cy} r={on ? 13 : 10}
-                          fill={on ? '#1d4ed8' : '#60a5fa'}
-                          stroke="#fff" strokeWidth={2} />
-                  <text x={cx} y={cy + 4} textAnchor="middle"
-                        fontSize="11" fill="#fff" pointerEvents="none">
+                <g key={c.id} className="km-node" onClick={() => setSelected(on ? null : c.id)}>
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={on ? 13 : 10}
+                    fill={on ? '#1d4ed8' : '#60a5fa'}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
+                  <text
+                    x={cx}
+                    y={cy + 4}
+                    textAnchor="middle"
+                    fontSize="11"
+                    fill="#fff"
+                    pointerEvents="none"
+                  >
                     {c.chunk_count}
                   </text>
                 </g>

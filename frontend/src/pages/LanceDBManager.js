@@ -154,9 +154,7 @@ const LanceDBManager = () => {
       >
         <h3 style={{ margin: 0 }}>Documents in Index</h3>
 
-        <label
-          style={{ color: '#64748b', fontSize: 13, marginLeft: 'auto' }}
-        >
+        <label style={{ color: '#64748b', fontSize: 13, marginLeft: 'auto' }}>
           Knowledge base:
         </label>
         <select
@@ -202,10 +200,7 @@ const LanceDBManager = () => {
                 const name = d.document_name;
                 const on = selectedDoc === name;
                 return (
-                  <tr
-                    key={name}
-                    style={on ? { background: '#eff6ff' } : undefined}
-                  >
+                  <tr key={name} style={on ? { background: '#eff6ff' } : undefined}>
                     <td style={{ wordBreak: 'break-all' }}>{d.display_name || name}</td>
                     <td>{d.chunk_count}</td>
                     <td>
@@ -228,15 +223,15 @@ const LanceDBManager = () => {
       {selectedDoc && kbId && (
         <KnowledgeMap
           docName={selectedDoc}
-          displayName={docs.find((doc) => doc.document_name === selectedDoc)?.display_name || selectedDoc}
+          displayName={
+            docs.find((doc) => doc.document_name === selectedDoc)?.display_name || selectedDoc
+          }
           kbId={kbId}
         />
       )}
 
       {selectedDoc && !kbId && (
-        <p style={{ color: '#64748b', marginTop: 16 }}>
-          Please select a knowledge base first.
-        </p>
+        <p style={{ color: '#64748b', marginTop: 16 }}>Please select a knowledge base first.</p>
       )}
     </div>
   );

@@ -133,7 +133,6 @@
   color: #94a3b8;
 }
 
-
 .chat-main {
   background: #ffffff;
   border-radius: 12px;
@@ -211,7 +210,6 @@
   margin-top: 4px;
 }
 
-
 .chat-input-area {
   padding: 16px;
   background: #ffffff;
@@ -259,7 +257,6 @@
   margin-bottom: 8px;
 }
 
-
 /* ══ 操作按钮（置顶 / 重命名 / 删除）══ */
 .chat-item-actions {
   display: flex;
@@ -280,7 +277,9 @@
   font-size: 13px;
   line-height: 1;
   color: #94a3b8;
-  transition: background 0.15s, transform 0.1s;
+  transition:
+    background 0.15s,
+    transform 0.1s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -299,7 +298,7 @@
 }
 
 /* 删除按钮：hover 变红 */
-.btn-action-icon[title="Delete"]:hover {
+.btn-action-icon[title='Delete']:hover {
   background: #fee2e2;
 }
 
@@ -331,7 +330,9 @@
   font-size: 14px;
   line-height: 1;
   color: #94a3b8;
-  transition: background 0.15s, transform 0.1s;
+  transition:
+    background 0.15s,
+    transform 0.1s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -347,20 +348,18 @@
   transform: scale(0.95);
 }
 
-
 /* KB badge on each conversation item */
 .chat-item-kb {
-    font-size: 10px;
-    font-weight: 600;
-    background: #eff6ff;
-    color: #2563eb;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: 6px;
-    flex-shrink: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 90px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
 }
-

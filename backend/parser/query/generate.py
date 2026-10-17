@@ -3,6 +3,7 @@
 """
 Generate Function - Call llama-server API with prompt
 """
+
 import requests
 import json
 import sys
@@ -13,27 +14,24 @@ class LLMGenerator:
     def __init__(self, api_url: str = "http://localhost:8080/v1/chat/completions"):
         self.api_url = api_url
 
-    def generate(self, prompt: str, temperature: float = 0.3, max_tokens: int = 512) -> Optional[str]:
+    def generate(
+        self, prompt: str, temperature: float = 0.3, max_tokens: int = 512
+    ) -> Optional[str]:
         headers = {"Content-Type": "application/json"}
 
-        # 确保针对 llama-server 的 OpenAI 兼容接口构建正确格式
+        # Build the request for llama-server's OpenAI-compatible API.
         payload = {
-            "messages": [
-                {"role": "user", "content": prompt}
-            ],
+            "messages": [{"role": "user", "content": prompt}],
             "temperature": temperature,
             "max_tokens": max_tokens,
-            "stream": False
+            "stream": False,
         }
 
         try:
-            # 日志重定向到 stderr，避免污染 Node.js 读取的 stdout
+            # Keep diagnostic output on stderr so stdout remains machine-readable.
             print("⏳ Sending request to llama-server...", file=sys.stderr)
             response = requests.post(
-                self.api_url,
-                headers=headers,
-                json=payload,
-                timeout=180
+                self.api_url, headers=headers, json=payload, timeout=180
             )
             response.raise_for_status()
 
@@ -45,7 +43,10 @@ class LLMGenerator:
             return None
 
         except requests.exceptions.ConnectionError:
-            print("Error: Cannot connect to llama-server at http://localhost:8080", file=sys.stderr)
+            print(
+                "Error: Cannot connect to llama-server at http://localhost:8080",
+                file=sys.stderr,
+            )
             return None
         except requests.exceptions.Timeout:
             print("Error: llama-server request timed out (180s)", file=sys.stderr)

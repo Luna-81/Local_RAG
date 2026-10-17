@@ -3,6 +3,7 @@
 PDF Vectorization Tool
 Usage: python run.py <pdf_file_path>
 """
+
 import os
 import sys
 from core.pipeline import process_pdf_file
@@ -13,12 +14,12 @@ def find_pdf_file(filename):
     if os.path.exists(filename):
         return filename
 
-    data_raw_path = os.path.join('./data_raw', filename)
+    data_raw_path = os.path.join("./data_raw", filename)
     if os.path.exists(data_raw_path):
         return data_raw_path
 
-    if os.path.exists('./' + filename):
-        return './' + filename
+    if os.path.exists("./" + filename):
+        return "./" + filename
 
     return None
 
@@ -53,7 +54,7 @@ def main():
         print(f"  - ./{file_path}")
         sys.exit(1)
 
-    if not actual_path.lower().endswith('.pdf'):
+    if not actual_path.lower().endswith(".pdf"):
         print(f"Error: Not a PDF file: {actual_path}")
         sys.exit(1)
 
@@ -64,14 +65,18 @@ def main():
 
     i = 2
     while i < len(sys.argv):
-        if sys.argv[i] == '--chunk_size' and i + 1 < len(sys.argv):
-            chunk_size = int(sys.argv[i + 1]); i += 2
-        elif sys.argv[i] == '--overlap' and i + 1 < len(sys.argv):
-            overlap = int(sys.argv[i + 1]); i += 2
-        elif sys.argv[i] == '--original_name' and i + 1 < len(sys.argv):
-            original_name = sys.argv[i + 1]; i += 2
-        elif sys.argv[i] == '--kb_table' and i + 1 < len(sys.argv):
-            kb_table = sys.argv[i + 1]; i += 2
+        if sys.argv[i] == "--chunk_size" and i + 1 < len(sys.argv):
+            chunk_size = int(sys.argv[i + 1])
+            i += 2
+        elif sys.argv[i] == "--overlap" and i + 1 < len(sys.argv):
+            overlap = int(sys.argv[i + 1])
+            i += 2
+        elif sys.argv[i] == "--original_name" and i + 1 < len(sys.argv):
+            original_name = sys.argv[i + 1]
+            i += 2
+        elif sys.argv[i] == "--kb_table" and i + 1 < len(sys.argv):
+            kb_table = sys.argv[i + 1]
+            i += 2
         else:
             i += 1
 
@@ -113,6 +118,7 @@ def main():
     except Exception as e:
         print(f"\nError: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

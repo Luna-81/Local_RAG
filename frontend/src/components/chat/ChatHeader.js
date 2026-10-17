@@ -34,11 +34,7 @@ function ChatHeader({
       ) : (
         <div className="chat-header-name-container">
           <span className="chat-header-name">💬 {displayName}</span>
-          <button
-            className="rename-btn"
-            onClick={onStartEdit}
-            title="Rename conversation"
-          >
+          <button className="rename-btn" onClick={onStartEdit} title="Rename conversation">
             ✏️
           </button>
         </div>

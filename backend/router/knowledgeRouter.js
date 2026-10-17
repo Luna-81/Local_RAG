@@ -11,10 +11,10 @@ const FileListModel = require('../models/FileListModel');
 const router = express.Router();
 
 const PROJECT_DIR = path.join(__dirname, '..', '..');
-const PARSER_DIR  = path.join(PROJECT_DIR, 'backend', 'parser');
-const SCRIPT      = path.join(PARSER_DIR, 'knowledge_map.py');
-const CACHE_ROOT  = path.join(PROJECT_DIR, 'data', 'knowledge_maps');
-const PYTHON      = path.join(PROJECT_DIR, 'venv', 'bin', 'python3');
+const PARSER_DIR = path.join(PROJECT_DIR, 'backend', 'parser');
+const SCRIPT = path.join(PARSER_DIR, 'knowledge_map.py');
+const CACHE_ROOT = path.join(PROJECT_DIR, 'data', 'knowledge_maps');
+const PYTHON = path.join(PROJECT_DIR, 'venv', 'bin', 'python3');
 
 fs.mkdirSync(CACHE_ROOT, { recursive: true });
 
@@ -51,7 +51,7 @@ function runPython(args, tableName, maxBuffer, cb) {
       maxBuffer: maxBuffer || 10 * 1024 * 1024,
       env: { ...process.env, KB_TABLE: tableName },
     },
-    cb
+    cb,
   );
 }
 
@@ -69,10 +69,10 @@ router.get('/documents', authenticate, allowed, (req, res) => {
     try {
       const out = JSON.parse(stdout);
       const files = Number.isInteger(kbId) && kbId > 0 ? FileListModel.findByKbId(kbId) : [];
-      const originalNames = new Map(files.map(file => [file.filename, file.originalName]));
+      const originalNames = new Map(files.map((file) => [file.filename, file.originalName]));
       res.json({
         success: true,
-        data: (out.documents || []).map(doc => ({
+        data: (out.documents || []).map((doc) => ({
           ...doc,
           display_name: originalNames.get(doc.document_name) || doc.document_name,
         })),
