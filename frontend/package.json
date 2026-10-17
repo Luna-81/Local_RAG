@@ -17,7 +17,6 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:3000",
   "eslintConfig": {
     "extends": [
       "react-app"
@@ -36,6 +35,8 @@
     ]
   },
   "devDependencies": {
+    "dotenv": "^16.3.1",
+    "http-proxy-middleware": "^2.0.6",
     "prettier": "^3.9.10"
   }
 }
