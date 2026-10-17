@@ -10,12 +10,9 @@ from core.pdf_parser import PDFParser
 from core.text_chunker import TextChunker
 from core.vector_encoder import VectorEncoder
 from core.vector_store import VectorStore
+from config import VECTOR_DB_PATH
 
-# Resolve project root dynamically (576project/data/vector_db)
-BASE_DIR = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
-DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
+DEFAULT_DB_PATH = str(VECTOR_DB_PATH)
 
 
 class PDFPipeline:
