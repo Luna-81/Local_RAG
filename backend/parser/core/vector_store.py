@@ -9,6 +9,7 @@ Falls back to "kb_1" when unspecified.
 """
 
 import json
+import os
 import re
 import uuid
 import sys

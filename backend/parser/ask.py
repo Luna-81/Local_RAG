@@ -32,23 +32,26 @@ def ask_question(
     except Exception as e:
         if verbose:
             print(f"Search failed with error: {e}", file=sys.stderr)
-        results = []
+        return (
+            "I couldn't search the selected knowledge base. Please try again.",
+            [],
+        )
 
-    # 2. Build prompt
-    if results:
+    if not results:
         if verbose:
             print(
-                f"\n[1] Found {len(results)} relevant chunks. Building prompt...",
+                "\n[1] No relevant content found in vector DB.",
                 file=sys.stderr,
             )
-        prompt = build_prompt(question, results)
-    else:
-        if verbose:
-            print(
-                "\n[1] No relevant content found in vector DB. Using raw question...",
-                file=sys.stderr,
-            )
-        prompt = question
+        return ("I couldn't find relevant information in the selected knowledge base.", [])
+
+    # 2. Build a grounded prompt from retrieved document content.
+    if verbose:
+        print(
+            f"\n[1] Found {len(results)} relevant chunks. Building prompt...",
+            file=sys.stderr,
+        )
+    prompt = build_prompt(question, results)
 
     if verbose:
         print("\n[2] Generating answer from LLM...", file=sys.stderr)

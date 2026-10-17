@@ -2,17 +2,15 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { execFile } = require('child_process');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const FileListModel = require('../models/FileListModel');
-const { KNOWLEDGE_MAP_CACHE_DIR, PROJECT_ROOT, PYTHON_EXECUTABLE } = require('../config/runtime');
+const { KNOWLEDGE_MAP_CACHE_DIR } = require('../config/runtime');
+const { execParser } = require('../services/pythonProcess');
 
 const router = express.Router();
 
-const PARSER_DIR = path.join(PROJECT_ROOT, 'backend', 'parser');
-const SCRIPT = path.join(PARSER_DIR, 'knowledge_map.py');
 const CACHE_ROOT = KNOWLEDGE_MAP_CACHE_DIR;
 
 fs.mkdirSync(CACHE_ROOT, { recursive: true });
@@ -42,11 +40,10 @@ const cacheFile = (doc, tableName) =>
  * Run knowledge_map.py with KB_TABLE env var set.
  */
 function runPython(args, tableName, maxBuffer, cb) {
-  execFile(
-    PYTHON_EXECUTABLE,
-    [SCRIPT, ...args],
+  execParser(
+    'knowledge_map.py',
+    args,
     {
-      cwd: PARSER_DIR,
       maxBuffer: maxBuffer || 10 * 1024 * 1024,
       env: { ...process.env, KB_TABLE: tableName },
     },

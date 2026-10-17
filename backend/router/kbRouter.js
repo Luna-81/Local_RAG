@@ -1,18 +1,12 @@
 // backend/router/kbRouter.js
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const { execFile } = require('child_process');
 
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const FileListModel = require('../models/FileListModel');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
-const { PYTHON_EXECUTABLE } = require('../config/runtime');
-
-// Python interpreter / script paths
-const parserDir = path.join(__dirname, '../parser');
-const LANCEDB_ADMIN = path.join(parserDir, 'lancedb_admin.py');
+const { execParser } = require('../services/pythonProcess');
 
 /**
  * Drop a LanceDB table via lancedb_admin.py.
@@ -20,26 +14,21 @@ const LANCEDB_ADMIN = path.join(parserDir, 'lancedb_admin.py');
  */
 function dropLanceTable(tableName) {
   return new Promise((resolve, reject) => {
-    execFile(
-      PYTHON_EXECUTABLE,
-      [LANCEDB_ADMIN, 'clear', tableName],
-      { cwd: parserDir },
-      (err, stdout, stderr) => {
-        if (err) {
-          return reject(new Error(stderr || err.message));
+    execParser('lancedb_admin.py', ['clear', tableName], {}, (err, stdout, stderr) => {
+      if (err) {
+        return reject(new Error(stderr || err.message));
+      }
+      try {
+        const data = JSON.parse(stdout.trim());
+        if (data.success) return resolve({ dropped: true });
+        if (/does not exist/i.test(data.message || '')) {
+          return resolve({ dropped: false, reason: 'not_found' });
         }
-        try {
-          const data = JSON.parse(stdout.trim());
-          if (data.success) return resolve({ dropped: true });
-          if (/does not exist/i.test(data.message || '')) {
-            return resolve({ dropped: false, reason: 'not_found' });
-          }
-          return reject(new Error(data.message || 'Unknown error'));
-        } catch (e) {
-          return reject(new Error(`Bad JSON from lancedb_admin: ${stdout}`));
-        }
-      },
-    );
+        return reject(new Error(data.message || 'Unknown error'));
+      } catch (e) {
+        return reject(new Error(`Bad JSON from lancedb_admin: ${stdout}`));
+      }
+    });
   });
 }
 
