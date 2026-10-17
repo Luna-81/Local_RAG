@@ -1,235 +1,96 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { fetchXdpStats, fetchWhitelist } from '../api/xdpApi';
+import React from 'react';
+import useDashboardData from '../hooks/useDashboardData';
+import '../css/Dashboard.css';
 
-const Dashboard = () => {
-  const [stats, setStats] = useState({ passedTotal: 0, droppedTotal: 0, totalPackets: 0 });
-  const [whitelist, setWhitelist] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
-
-  // Load the dashboard's read-only metrics.
-  const loadData = useCallback(async () => {
-    try {
-      const [statsRes, listRes] = await Promise.all([fetchXdpStats(), fetchWhitelist()]);
-      if (statsRes.success) setStats(statsRes.stats);
-      if (listRes.success) setWhitelist(listRes.whitelist || []);
-      setErrorMsg('');
-    } catch (err) {
-      console.error('Failed to fetch XDP data:', err);
-      setErrorMsg(
-        err.response?.data?.message ||
-          'XDP metrics unavailable. Administrator permissions required.',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-    const timer = setInterval(() => {
-      fetchXdpStats()
-        .then((res) => {
-          if (res.success) setStats(res.stats);
-        })
-        .catch((err) => console.error('XDP stats poll error:', err));
-    }, 3000);
-    return () => clearInterval(timer);
-  }, [loadData]);
-
-  const passRate =
-    stats.totalPackets > 0 ? ((stats.passedTotal / stats.totalPackets) * 100).toFixed(1) : '0.0';
-  const dropRate =
-    stats.totalPackets > 0 ? ((stats.droppedTotal / stats.totalPackets) * 100).toFixed(1) : '0.0';
-
+function MetricCard({ label, value, variant = '' }) {
   return (
-    <div
-      style={{
-        width: '100%',
-        maxWidth: 1100,
-        margin: '0 auto',
-        padding: '2rem',
-        boxSizing: 'border-box',
-      }}
-    >
-      <h2>📊 System Dashboard</h2>
-      <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-        Real-time system and network security overview
-      </p>
-
-      {/* Read-only XDP dashboard. */}
-      <div style={{ marginTop: '2rem', ...cardStyle }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h3 style={{ margin: 0 }}>🛡️ XDP / eBPF Kernel Firewall</h3>
-            <p style={{ color: '#666', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>
-              Kernel-level packet inspection · Real-time traffic stats
-            </p>
-          </div>
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.75rem',
-              color: '#137333',
-              background: '#e6f4ea',
-              padding: '0.2rem 0.6rem',
-              borderRadius: '10px',
-              fontWeight: 600,
-            }}
-          >
-            <span
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: '#34a853',
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }}
-            />
-            LIVE
-          </span>
-        </div>
-
-        {errorMsg && (
-          <div
-            style={{
-              background: '#ffe6e6',
-              color: '#d93025',
-              padding: '10px',
-              borderRadius: '4px',
-              marginTop: '1rem',
-            }}
-          >
-            {errorMsg}
-          </div>
-        )}
-
-        {loading ? (
-          <p style={{ color: '#666', marginTop: '1rem' }}>Connecting to eBPF kernel maps...</p>
-        ) : (
-          <>
-            {/* Summary cards. */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '1rem',
-                margin: '1.5rem 0',
-              }}
-            >
-              <div
-                style={{
-                  background: '#f8f9fa',
-                  borderLeft: '4px solid #1a73e8',
-                  padding: '1rem',
-                  borderRadius: '4px',
-                }}
-              >
-                <div style={{ fontSize: '0.8rem', color: '#5f6368', marginBottom: '0.4rem' }}>
-                  Total Processed
-                </div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>
-                  {stats.totalPackets.toLocaleString()}
-                </div>
-              </div>
-              <div
-                style={{
-                  background: '#f8f9fa',
-                  borderLeft: '4px solid #34a853',
-                  padding: '1rem',
-                  borderRadius: '4px',
-                }}
-              >
-                <div style={{ fontSize: '0.8rem', color: '#5f6368', marginBottom: '0.4rem' }}>
-                  Passed ({passRate}%)
-                </div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#137333' }}>
-                  {stats.passedTotal.toLocaleString()}
-                </div>
-              </div>
-              <div
-                style={{
-                  background: '#f8f9fa',
-                  borderLeft: '4px solid #ea4335',
-                  padding: '1rem',
-                  borderRadius: '4px',
-                }}
-              >
-                <div style={{ fontSize: '0.8rem', color: '#5f6368', marginBottom: '0.4rem' }}>
-                  Kernel Dropped ({dropRate}%)
-                </div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#c5221f' }}>
-                  {stats.droppedTotal.toLocaleString()}
-                </div>
-              </div>
-            </div>
-
-            {/* Packet distribution bar. */}
-            <div
-              style={{
-                height: '10px',
-                background: '#e0e0e0',
-                borderRadius: '5px',
-                overflow: 'hidden',
-                display: 'flex',
-                margin: '0 0 1.5rem 0',
-              }}
-            >
-              <div
-                style={{ width: `${passRate}%`, background: '#34a853', transition: 'width 0.5s' }}
-              />
-              <div
-                style={{ width: `${dropRate}%`, background: '#ea4335', transition: 'width 0.5s' }}
-              />
-            </div>
-
-            {/* Read-only whitelist summary. */}
-            <h4 style={{ marginBottom: '0.75rem' }}>📋 Active Whitelist ({whitelist.length})</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {whitelist.length === 0 ? (
-                <span style={{ color: '#70757a', fontSize: '0.9rem' }}>
-                  No IPs in kernel whitelist.
-                </span>
-              ) : (
-                whitelist.map((ip) => (
-                  <span
-                    key={ip}
-                    style={{
-                      background: '#e6f4ea',
-                      color: '#137333',
-                      padding: '0.35rem 0.8rem',
-                      borderRadius: '14px',
-                      fontSize: '0.85rem',
-                      fontFamily: 'monospace',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {ip}
-                  </span>
-                ))
-              )}
-            </div>
-          </>
-        )}
-      </div>
-
-      <style>{`
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.3; }
-                }
-            `}</style>
+    <div className={`dashboard-metric-card ${variant}`}>
+      <span className="dashboard-metric-label">{label}</span>
+      <strong className="dashboard-metric-value">{value}</strong>
     </div>
   );
-};
+}
 
-const cardStyle = {
-  background: '#fff',
-  padding: '1.5rem',
-  borderRadius: '8px',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-};
+function Dashboard() {
+  const { stats, whitelist, loading, error } = useDashboardData();
+  const totalPackets = stats.totalPackets || 0;
+  const passRate = totalPackets ? (stats.passedTotal / totalPackets) * 100 : 0;
+  const dropRate = totalPackets ? (stats.droppedTotal / totalPackets) * 100 : 0;
+
+  return (
+    <div className="dashboard-container">
+      <h2>📊 System Dashboard</h2>
+      <p className="dashboard-subtitle">Real-time system and network security overview</p>
+
+      <section className="dashboard-firewall-card">
+        <header className="dashboard-firewall-header">
+          <div>
+            <h3>🛡️ XDP / eBPF Kernel Firewall</h3>
+            <p>Kernel-level packet inspection · Real-time traffic stats</p>
+          </div>
+          <span className="dashboard-live-badge">
+            <span className="dashboard-live-indicator" />
+            LIVE
+          </span>
+        </header>
+
+        {error && <div className="dashboard-error">{error}</div>}
+
+        {loading ? (
+          <p className="dashboard-loading">Connecting to eBPF kernel maps...</p>
+        ) : (
+          <>
+            <div className="dashboard-metrics-grid">
+              <MetricCard label="Total Processed" value={stats.totalPackets.toLocaleString()} />
+              <MetricCard
+                label={`Passed (${passRate.toFixed(1)}%)`}
+                value={stats.passedTotal.toLocaleString()}
+                variant="passed"
+              />
+              <MetricCard
+                label={`Kernel Dropped (${dropRate.toFixed(1)}%)`}
+                value={stats.droppedTotal.toLocaleString()}
+                variant="dropped"
+              />
+            </div>
+
+            <svg
+              className="dashboard-packet-bar"
+              viewBox="0 0 100 10"
+              preserveAspectRatio="none"
+              role="progressbar"
+              aria-label="Passed and dropped packet distribution"
+              aria-valuenow={Math.round(passRate)}
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <rect className="dashboard-passed-segment" x="0" y="0" width={passRate} height="10" />
+              <rect
+                className="dashboard-dropped-segment"
+                x={passRate}
+                y="0"
+                width={dropRate}
+                height="10"
+              />
+            </svg>
+
+            <h4 className="dashboard-whitelist-title">📋 Active Whitelist ({whitelist.length})</h4>
+            {whitelist.length === 0 ? (
+              <span className="dashboard-empty-whitelist">No IPs in kernel whitelist.</span>
+            ) : (
+              <div className="dashboard-whitelist">
+                {whitelist.map((ip) => (
+                  <span className="dashboard-whitelist-ip" key={ip}>
+                    {ip}
+                  </span>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+    </div>
+  );
+}
 
 export default Dashboard;

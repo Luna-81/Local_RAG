@@ -109,7 +109,7 @@ const LanceDBManager = () => {
           <tbody>
             {stats?.tables?.length === 0 ? (
               <tr>
-                <td colSpan="2" style={{ textAlign: 'center' }}>
+                <td colSpan="2" className="utility-cell-centered">
                   No data tables found.
                 </td>
               </tr>
@@ -119,16 +119,8 @@ const LanceDBManager = () => {
                   <td>
                     {tbl.kbName ? (
                       <>
-                        <span style={{ fontWeight: 600 }}>{tbl.kbName}</span>
-                        <span
-                          style={{
-                            color: '#94a3b8',
-                            marginLeft: 8,
-                            fontSize: 12,
-                          }}
-                        >
-                          ({tbl.name})
-                        </span>
+                        <span className="lancedb-kb-name">{tbl.kbName}</span>
+                        <span className="lancedb-table-name">({tbl.name})</span>
                       </>
                     ) : (
                       tbl.name
@@ -143,32 +135,15 @@ const LanceDBManager = () => {
       </div>
 
       {/* KB selector + Documents */}
-      <div
-        style={{
-          marginTop: 32,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          flexWrap: 'wrap',
-        }}
-      >
-        <h3 style={{ margin: 0 }}>Documents in Index</h3>
+      <div className="lancedb-documents-header">
+        <h3 className="lancedb-section-heading">Documents in Index</h3>
 
-        <label style={{ color: '#64748b', fontSize: 13, marginLeft: 'auto' }}>
-          Knowledge base:
-        </label>
+        <label className="lancedb-kb-label">Knowledge base:</label>
         <select
           value={kbId || ''}
           onChange={(e) => setKbId(Number(e.target.value))}
           disabled={kbList.length === 0}
-          style={{
-            minWidth: 180,
-            padding: '6px 10px',
-            border: '1px solid #e2e8f0',
-            borderRadius: 8,
-            fontSize: 14,
-            background: '#fff',
-          }}
+          className="lancedb-kb-select"
         >
           {kbList.length === 0 && <option value="">(none)</option>}
           {kbList.map((kb) => (
@@ -179,7 +154,7 @@ const LanceDBManager = () => {
         </select>
       </div>
 
-      <div className="table-wrapper" style={{ marginTop: 12 }}>
+      <div className="table-wrapper lancedb-documents-table">
         <table className="admin-table">
           <thead>
             <tr>
@@ -191,7 +166,7 @@ const LanceDBManager = () => {
           <tbody>
             {docs.length === 0 ? (
               <tr>
-                <td colSpan="3" style={{ textAlign: 'center' }}>
+                <td colSpan="3" className="utility-cell-centered">
                   No documents found.
                 </td>
               </tr>
@@ -200,8 +175,8 @@ const LanceDBManager = () => {
                 const name = d.document_name;
                 const on = selectedDoc === name;
                 return (
-                  <tr key={name} style={on ? { background: '#eff6ff' } : undefined}>
-                    <td style={{ wordBreak: 'break-all' }}>{d.display_name || name}</td>
+                  <tr key={name} className={on ? 'lancedb-selected-row' : undefined}>
+                    <td className="utility-break-word">{d.display_name || name}</td>
                     <td>{d.chunk_count}</td>
                     <td>
                       <button
@@ -231,7 +206,7 @@ const LanceDBManager = () => {
       )}
 
       {selectedDoc && !kbId && (
-        <p style={{ color: '#64748b', marginTop: 16 }}>Please select a knowledge base first.</p>
+        <p className="lancedb-select-prompt">Please select a knowledge base first.</p>
       )}
     </div>
   );

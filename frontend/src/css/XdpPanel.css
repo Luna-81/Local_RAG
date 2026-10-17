@@ -2,6 +2,10 @@
   padding-top: 8px;
 }
 
+.xdp-section-heading {
+  margin-top: 28px;
+}
+
 .xdp-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
