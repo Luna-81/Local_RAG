@@ -5,10 +5,10 @@ const path = require('path');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
+const { PYTHON_EXECUTABLE } = require('../config/runtime');
 
 const router = express.Router();
 const PYTHON_SCRIPT = path.join(__dirname, '../parser/lancedb_admin.py');
-const PYTHON = path.join(__dirname, '..', '..', 'venv', 'bin', 'python3');
 
 /**
  * GET /api/lancedb/stats
@@ -20,7 +20,7 @@ router.get(
   authenticate,
   authorize([USER_TYPES.AI_OPERATOR, USER_TYPES.SYS_ADMIN]),
   (req, res) => {
-    execFile(PYTHON, [PYTHON_SCRIPT, 'stats'], (error, stdout, stderr) => {
+    execFile(PYTHON_EXECUTABLE, [PYTHON_SCRIPT, 'stats'], (error, stdout, stderr) => {
       if (error) {
         return res.status(500).json({ success: false, message: stderr || error.message });
       }
@@ -65,7 +65,7 @@ router.post(
       return res.status(400).json({ success: false, message: 'tableName parameter is required.' });
     }
 
-    execFile(PYTHON, [PYTHON_SCRIPT, 'clear', tableName], (error, stdout, stderr) => {
+    execFile(PYTHON_EXECUTABLE, [PYTHON_SCRIPT, 'clear', tableName], (error, stdout, stderr) => {
       if (error) {
         return res.status(500).json({ success: false, message: stderr || error.message });
       }

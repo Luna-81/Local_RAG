@@ -11,20 +11,15 @@ const { USER_TYPES } = require('../config/constants');
 const FileListModel = require('../models/FileListModel');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const { getUserId } = require('../utils/reqUser');
+const { PYTHON_EXECUTABLE, UPLOAD_DIR, VECTORIZE_TIMEOUT_MS } = require('../config/runtime');
 
 // Upload / parser directories
-const uploadDir = path.join(__dirname, '../../data/raw_pdfs');
+const uploadDir = UPLOAD_DIR;
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const parserDir = path.join(__dirname, '../parser');
 const RUN_SCRIPT = path.join(parserDir, 'run.py');
 const LANCEDB_ADMIN_SCRIPT = path.join(parserDir, 'lancedb_admin.py');
-
-// Prefer the project virtualenv, fall back to the system python3.
-function resolvePython() {
-  const venvPython = path.resolve(__dirname, '../../venv/bin/python3');
-  return fs.existsSync(venvPython) ? venvPython : 'python3';
-}
 
 // Multer storage
 const storage = multer.diskStorage({
@@ -51,7 +46,6 @@ let processingStatusMap = new Map();
 
 function startVectorization({ filename, originalName, kb, chunkSize = 300, overlap = 30 }) {
   const absoluteFilePath = path.join(uploadDir, filename);
-  const pythonExecutable = resolvePython();
   const args = [
     RUN_SCRIPT,
     absoluteFilePath,
@@ -68,13 +62,13 @@ function startVectorization({ filename, originalName, kb, chunkSize = 300, overl
   console.log(`[Vectorization Started] ${originalName} -> table=${kb.tableName}`);
 
   execFile(
-    pythonExecutable,
+    PYTHON_EXECUTABLE,
     args,
     {
       cwd: parserDir,
       env: childEnv,
       maxBuffer: 10 * 1024 * 1024,
-      timeout: 15 * 60 * 1000,
+      timeout: VECTORIZE_TIMEOUT_MS,
     },
     (error, stdout, stderr) => {
       if (error) {

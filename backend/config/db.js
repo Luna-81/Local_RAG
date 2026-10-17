@@ -3,15 +3,13 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const { SQLITE_PATH } = require('./runtime');
 
-// Ensure data directory exists
-const dataDir = path.join(__dirname, '../../data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
+// Ensure the configured database parent directory exists.
+fs.mkdirSync(path.dirname(SQLITE_PATH), { recursive: true });
 
 // Initialize SQLite3 database
-const db = new Database(path.join(dataDir, 'app.sqlite3'));
+const db = new Database(SQLITE_PATH);
 db.pragma('journal_mode = WAL');
 
 function initDatabase() {
