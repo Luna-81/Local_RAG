@@ -73,6 +73,18 @@ class VectorStore:
         if not records:
             return 0
 
+        prepared_records = self._prepare_records(records)
+        self.table.add(prepared_records)
+        print(
+            f"Added {len(prepared_records)} records to [{self.table_name}]",
+            file=sys.stderr,
+        )
+        self._flush_pending_writes()
+        self._log_table_size()
+        return len(prepared_records)
+
+    @staticmethod
+    def _prepare_records(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         prepared_records = []
         for record in records:
             if "id" not in record:
@@ -85,13 +97,9 @@ class VectorStore:
                 record["vector"] = record["vector"].tolist()
 
             prepared_records.append(record)
+        return prepared_records
 
-        self.table.add(prepared_records)
-        print(
-            f"Added {len(prepared_records)} records to [{self.table_name}]",
-            file=sys.stderr,
-        )
-
+    def _flush_pending_writes(self) -> None:
         try:
             if hasattr(self.table, "_dataset") and self.table._dataset:
                 self.table._dataset.checkpoint()
@@ -102,10 +110,9 @@ class VectorStore:
         except Exception as e:
             print(f"Commit warning: {e}", file=sys.stderr)
 
+    def _log_table_size(self) -> None:
         row_count = len(self.table)
         print(f"Table [{self.table_name}] now has {row_count} records", file=sys.stderr)
-
-        return len(prepared_records)
 
     def search(self, query_vector: List[float], top_k: int = 5) -> List[Dict]:
         try:

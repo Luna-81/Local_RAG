@@ -4,7 +4,7 @@ Pipeline - Orchestrate the entire PDF processing workflow
 """
 
 import os
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Tuple
 
 from core.pdf_parser import PDFParser
 from core.text_chunker import TextChunker
@@ -39,11 +39,9 @@ class PDFPipeline:
         print(f"\nProcessing file: {os.path.basename(file_path)}")
         print("-" * 50)
 
-        print("Step 1: Parsing PDF...")
-        parser = PDFParser(file_path)
-        full_text = parser.extract_text(include_page_numbers=False)
-        pages = parser.extract_pages()
-        metadata = parser.get_metadata()
+        full_text, pages, metadata = self._extract_document(file_path)
+        if not full_text.strip():
+            raise ValueError(f"PDF contains no extractable text: {file_path}")
 
         print(f"  - Pages: {len(pages)}")
         print(f"  - Text length: {len(full_text)} characters")
@@ -60,28 +58,8 @@ class PDFPipeline:
         print(f"  - Vector dimension: {vectors.shape[1]}")
 
         print("Step 4: Storing in LanceDB...")
-        # Prefer the caller-provided display name; fall back to stored filename
         document_name = self.original_name or os.path.basename(file_path)
-
-        records = []
-        for i, (chunk_info, vector) in enumerate(zip(chunks, vectors)):
-            records.append(
-                {
-                    "document_name": document_name,
-                    "page": self._get_page_for_chunk(chunk_info, pages, i),
-                    "chunk_index": i,
-                    "text": chunk_info["text"],
-                    "vector": vector.tolist(),
-                    "metadata": {
-                        "title": metadata.get("title", ""),
-                        "author": metadata.get("author", ""),
-                        "total_pages": len(pages),
-                        "chunk_index": i,
-                        "char_count": chunk_info["char_count"],
-                        "word_count": chunk_info["word_count"],
-                    },
-                }
-            )
+        records = self._build_records(chunks, vectors, pages, metadata, document_name)
 
         inserted = self.store.insert(records)
         print(f"  - Inserted: {inserted} records")
@@ -95,6 +73,48 @@ class PDFPipeline:
             "text_length": len(full_text),
             "vector_dim": vectors.shape[1],
         }
+
+    @staticmethod
+    def _extract_document(file_path: str) -> Tuple[str, List[Dict], Dict]:
+        print("Step 1: Parsing PDF...")
+        parser = PDFParser(file_path)
+        pages = parser.extract_pages()
+        full_text = "\n\n".join(page["text"] for page in pages if page["has_text"])
+        return (
+            full_text,
+            pages,
+            parser.get_metadata(),
+        )
+
+    def _build_records(
+        self,
+        chunks: List[Dict],
+        vectors: Any,
+        pages: List[Dict],
+        metadata: Dict,
+        document_name: str,
+    ) -> List[Dict]:
+        """Combine chunk, vector, page, and PDF metadata at the storage boundary."""
+        records = []
+        for index, (chunk, vector) in enumerate(zip(chunks, vectors)):
+            records.append(
+                {
+                    "document_name": document_name,
+                    "page": self._get_page_for_chunk(chunk, pages, index),
+                    "chunk_index": index,
+                    "text": chunk["text"],
+                    "vector": vector.tolist(),
+                    "metadata": {
+                        "title": metadata.get("title", ""),
+                        "author": metadata.get("author", ""),
+                        "total_pages": len(pages),
+                        "chunk_index": index,
+                        "char_count": chunk["char_count"],
+                        "word_count": chunk["word_count"],
+                    },
+                }
+            )
+        return records
 
     def _get_page_for_chunk(
         self, chunk_info: Dict, pages: List[Dict], chunk_index: int

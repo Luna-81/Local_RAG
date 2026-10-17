@@ -98,6 +98,11 @@ All roles use the same User Hub; its shortcuts follow their permissions. JWTs ex
 ```bash
 node --test backend/tests/auth.test.js
 npm --prefix frontend run build
+python -m unittest discover -s backend/parser/tests -v
 ```
+
+The Python parser tests use the standard library test runner and require the
+dependencies from `backend/requirements.txt` to be installed in the active Python
+environment.
 If the embedding model is already cached locally and you want to avoid
 network access, run `export EMBED_OFFLINE=1` before starting the backend.

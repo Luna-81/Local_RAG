@@ -9,6 +9,12 @@ from typing import List, Dict
 
 class TextChunker:
     def __init__(self, chunk_size: int = 500, overlap: int = 50):
+        if chunk_size <= 0:
+            raise ValueError("chunk_size must be greater than zero")
+        if overlap < 0:
+            raise ValueError("overlap cannot be negative")
+        if overlap >= chunk_size:
+            raise ValueError("overlap must be smaller than chunk_size")
         self.chunk_size = chunk_size
         self.overlap = overlap
 
@@ -109,6 +115,8 @@ class TextChunker:
         return overlapped
 
     def chunk_text(self, text: str, method: str = "paragraph") -> List[Dict]:
+        if method not in {"paragraph", "sentence", "fixed"}:
+            raise ValueError(f"Unsupported chunking method: {method}")
         if method == "paragraph":
             chunks = self.chunk_by_paragraph(text)
         elif method == "sentence":
