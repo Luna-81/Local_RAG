@@ -107,16 +107,8 @@ def _parse_json(text: str) -> dict:
         return {}
 
 
-def build_map(doc_name: str) -> dict:
-    chunks, vectors = load_chunks(doc_name)
-    n = len(chunks)
-    if n == 0:
-        return {"doc_name": doc_name, "points": [], "clusters": []}
-
-    k = max(2, min(int(round(n**0.5)), 12, n))
-    labels = KMeans(n_clusters=k, n_init="auto", random_state=42).fit_predict(vectors)
-    coords = normalize(reduce_2d(vectors))
-
+def _build_points(chunks: list, labels: np.ndarray, coords: np.ndarray) -> list:
+    chunk_count = len(chunks)
     points = [
         {
             "x": float(coords[i, 0]),
@@ -125,28 +117,53 @@ def build_map(doc_name: str) -> dict:
             "page": chunks[i]["page"],
             "preview": chunks[i]["text"][:120],
         }
-        for i in range(n)
+        for i in range(chunk_count)
     ]
+    return points
 
+
+def _summarize_cluster(chunks: list, indices: list, cluster_id: int) -> dict:
+    merged_text = "\n---\n".join(chunks[index]["text"] for index in indices)[:3000]
+    return _parse_json(generate_answer(PROMPT.format(chunks=merged_text)))
+
+
+def _build_clusters(chunks: list, labels: np.ndarray, coords: np.ndarray) -> list:
     clusters = []
-    for lb in sorted(set(labels.tolist())):
-        idx = [i for i in range(n) if labels[i] == lb]
-        merged = "\n---\n".join(chunks[i]["text"] for i in idx)[:3000]
-        info = _parse_json(generate_answer(PROMPT.format(chunks=merged)))
+    for cluster_id in sorted(set(labels.tolist())):
+        indices = [index for index, label in enumerate(labels) if label == cluster_id]
+        info = _summarize_cluster(chunks, indices, cluster_id)
         clusters.append(
             {
-                "id": int(lb),
-                "x": float(np.mean([coords[i, 0] for i in idx])),
-                "y": float(np.mean([coords[i, 1] for i in idx])),
-                "label": info.get("label") or f"Topic {lb + 1}",
+                "id": int(cluster_id),
+                "x": float(np.mean([coords[index, 0] for index in indices])),
+                "y": float(np.mean([coords[index, 1] for index in indices])),
+                "label": info.get("label") or f"Topic {cluster_id + 1}",
                 "content": info.get("content", ""),
-                "chunk_count": len(idx),
-                "pages": sorted({chunks[i]["page"] for i in idx}),
-                "chunk_ids": [chunks[i]["id"] for i in idx],
+                "chunk_count": len(indices),
+                "pages": sorted({chunks[index]["page"] for index in indices}),
+                "chunk_ids": [chunks[index]["id"] for index in indices],
             }
         )
+    return clusters
 
-    return {"doc_name": doc_name, "points": points, "clusters": clusters}
+
+def build_map(doc_name: str) -> dict:
+    chunks, vectors = load_chunks(doc_name)
+    chunk_count = len(chunks)
+    if chunk_count == 0:
+        return {"doc_name": doc_name, "points": [], "clusters": []}
+
+    cluster_count = min(max(1, int(round(chunk_count**0.5))), 12, chunk_count)
+    labels = KMeans(
+        n_clusters=cluster_count, n_init="auto", random_state=42
+    ).fit_predict(vectors)
+    coords = normalize(reduce_2d(vectors))
+
+    return {
+        "doc_name": doc_name,
+        "points": _build_points(chunks, labels, coords),
+        "clusters": _build_clusters(chunks, labels, coords),
+    }
 
 
 def cache_file(doc_name: str) -> Path:

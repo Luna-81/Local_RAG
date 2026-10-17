@@ -12,8 +12,7 @@ fs.mkdirSync(path.dirname(SQLITE_PATH), { recursive: true });
 const db = new Database(SQLITE_PATH);
 db.pragma('journal_mode = WAL');
 
-function initDatabase() {
-  // 1. Users table
+function createUsersTable() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,8 +22,9 @@ function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     `);
+}
 
-  // 2. Conversations table
+function createConversationsTable() {
   db.exec(`
         CREATE TABLE IF NOT EXISTS conversations (
             id TEXT PRIMARY KEY,
@@ -35,7 +35,9 @@ function initDatabase() {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     `);
+}
 
+function migrateConversationColumns() {
   try {
     db.exec(`ALTER TABLE conversations ADD COLUMN is_pinned INTEGER DEFAULT 0;`);
   } catch (e) {}
@@ -44,8 +46,9 @@ function initDatabase() {
     db.exec(`ALTER TABLE conversations ADD COLUMN kb_id INTEGER;`);
     db.exec(`CREATE INDEX IF NOT EXISTS idx_conv_kb ON conversations(kb_id);`);
   } catch (e) {}
+}
 
-  // 3. File metadata table (with multi-KB fields)
+function createFileListTable() {
   db.exec(`
         CREATE TABLE IF NOT EXISTS filelist (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,10 +63,14 @@ function initDatabase() {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     `);
+}
+
+function markInterruptedUploadsFailed() {
   // Upload workers are children of this server and cannot survive its restart.
   db.prepare("UPDATE filelist SET status = 'failed' WHERE status = 'processing'").run();
+}
 
-  // 4. QA statistics table
+function createQaStatsTable() {
   db.exec(`
         CREATE TABLE IF NOT EXISTS qa_stats (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,11 +80,16 @@ function initDatabase() {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     `);
+}
 
+function migrateUserSchema() {
   const columns = db.prepare('PRAGMA table_info(users)').all();
   if (!columns.some((column) => column.name === 'token_version')) {
     db.exec('ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0');
   }
+}
+
+function migratePlaintextPasswords() {
   // Migrate existing plaintext passwords once, invalidating previous sessions.
   db.transaction(() => {
     for (const user of db.prepare('SELECT id, password FROM users').all()) {
@@ -88,8 +100,9 @@ function initDatabase() {
       }
     }
   })();
+}
 
-  // Seed default admin
+function seedDefaultAdmin() {
   const adminCheck = db.prepare('SELECT * FROM users WHERE username = ?').get('admin');
   if (!adminCheck) {
     const initialPassword = process.env.INITIAL_ADMIN_PASSWORD;
@@ -108,10 +121,9 @@ function initDatabase() {
       3,
     );
   }
+}
 
-  console.log('SQLite3 database initialized successfully.');
-
-  // 5. Audit log
+function createAuditTables() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS audit_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,8 +139,9 @@ function initDatabase() {
     `);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id);`);
+}
 
-  // 6. XDP whitelist (persistent, restored after restart)
+function createXdpTables() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS xdp_whitelist (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -150,12 +163,9 @@ function initDatabase() {
     );
     `);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_xdp_drop_count ON xdp_drop_history(total_count DESC);`);
+}
 
-  // ==========================================================
-  // 8. Multi-KB support
-  // ==========================================================
-
-  // 8.1 Knowledge bases table
+function createKnowledgeBaseTable() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS knowledge_bases (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -165,14 +175,14 @@ function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     `);
+}
 
-  // 8.2 Indexes
-  //   - content_hash unique globally: same file cannot exist in any KB twice
-  //   - kb_id used for listing files by KB
+function createKnowledgeBaseIndexes() {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_filelist_hash ON filelist(content_hash);`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_filelist_kb ON filelist(kb_id);`);
+}
 
-  // 8.3 First run: create the initial KB for UI
+function seedDefaultKnowledgeBase() {
   const kbCount = db.prepare('SELECT COUNT(*) AS c FROM knowledge_bases').get().c;
   if (kbCount === 0) {
     db.prepare('INSERT INTO knowledge_bases (name, description, table_name) VALUES (?, ?, ?)').run(
@@ -182,6 +192,25 @@ function initDatabase() {
     );
     console.log('Created initial KB: default (table=kb_1)');
   }
+}
+
+function initDatabase() {
+  createUsersTable();
+  createConversationsTable();
+  migrateConversationColumns();
+  createFileListTable();
+  markInterruptedUploadsFailed();
+  createQaStatsTable();
+  migrateUserSchema();
+  migratePlaintextPasswords();
+  seedDefaultAdmin();
+  createAuditTables();
+  createXdpTables();
+  createKnowledgeBaseTable();
+  createKnowledgeBaseIndexes();
+  seedDefaultKnowledgeBase();
+
+  console.log('SQLite3 database initialized successfully.');
 }
 
 module.exports = { db, initDatabase };

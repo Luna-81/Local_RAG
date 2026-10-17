@@ -43,7 +43,10 @@ def ask_question(
                 "\n[1] No relevant content found in vector DB.",
                 file=sys.stderr,
             )
-        return ("I couldn't find relevant information in the selected knowledge base.", [])
+        return (
+            "I couldn't find relevant information in the selected knowledge base.",
+            [],
+        )
 
     # 2. Build a grounded prompt from retrieved document content.
     if verbose:
