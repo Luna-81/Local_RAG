@@ -11,17 +11,18 @@ const { spawnParser } = require('../services/pythonProcess');
  * body: { question, kbId }
  * Requires authentication.
  */
-router.post('/ask', authenticate, async (req, res) => {
-  const { question, kbId } = req.body;
+router.post('/ask', authenticate, (req, res) => {
+  const { question, kbId } = req.body || {};
 
-  if (!question || !question.trim()) {
+  if (typeof question !== 'string' || !question.trim()) {
     return res.status(400).json({ success: false, message: 'Question is required' });
   }
-  if (!kbId) {
-    return res.status(400).json({ success: false, message: 'kbId is required' });
+  const numericKbId = Number(kbId);
+  if (!Number.isInteger(numericKbId) || numericKbId <= 0) {
+    return res.status(400).json({ success: false, message: 'A valid kbId is required' });
   }
 
-  const kb = KnowledgeBaseModel.findById(Number(kbId));
+  const kb = KnowledgeBaseModel.findById(numericKbId);
   if (!kb) {
     return res.status(404).json({ success: false, message: 'Knowledge base not found' });
   }

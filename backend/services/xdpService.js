@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const path = require('path');
 const { db } = require('../config/db');
 const { hexArrayToIp, ipToHexArray } = require('../utils/xdpAddress');
@@ -6,11 +6,16 @@ const { calculateDropDelta, parseStats } = require('../utils/xdpMetrics');
 
 const HELPER = path.join(__dirname, '..', '..', 'xdp-helper.sh');
 
-function runHelper(args, callback) {
-  exec(`bash "${HELPER}" ${args}`, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
-    if (error) return callback(error, null, stderr);
-    callback(null, stdout, null);
-  });
+function runHelper(command, args, callback) {
+  execFile(
+    'bash',
+    [HELPER, command, ...args],
+    { maxBuffer: 10 * 1024 * 1024 },
+    (error, stdout, stderr) => {
+      if (error) return callback(error, null, stderr);
+      callback(null, stdout, null);
+    },
+  );
 }
 
 function getDbWhitelist() {
@@ -57,7 +62,7 @@ function syncWhitelistToBpf(callback) {
       if (pending === 0) callback(firstError);
       return;
     }
-    runHelper(`add-whitelist ${bytes.join(' ')}`, (error) => {
+    runHelper('add-whitelist', bytes, (error) => {
       if (error && !firstError) firstError = error;
       pending -= 1;
       if (pending === 0) callback(firstError);
@@ -111,7 +116,7 @@ function parseDropMap(stdout) {
 }
 
 function refreshDropFromBpf(callback) {
-  runHelper('dump-drop-by-ip', (error, stdout) => {
+  runHelper('dump-drop-by-ip', [], (error, stdout) => {
     if (error) return callback?.(error, []);
     try {
       const dropCounts = parseDropMap(stdout);

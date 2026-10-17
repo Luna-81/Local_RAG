@@ -96,10 +96,14 @@ All roles use the same User Hub; its shortcuts follow their permissions. JWTs ex
 ## Checks
 
 ```bash
-node --test backend/tests/auth.test.js
+node --test tests/backend/node/*.test.js
 npm --prefix frontend run build
-python -m unittest discover -s backend/parser/tests -v
+python -m unittest discover -s tests/backend/python -v
 ```
+
+From the `backend` directory, run `npm run test:all` to execute both the Node.js
+and Python test suites. Activate the project Python virtual environment first so
+the parser dependencies are available.
 
 The Python parser tests use the standard library test runner and require the
 dependencies from `backend/requirements.txt` to be installed in the active Python

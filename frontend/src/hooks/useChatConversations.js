@@ -67,23 +67,27 @@ export default function useChatConversations() {
       const conversation = response?.conversation || response?.chat || response;
       const realId = getChatId(conversation);
 
-      if (conversation && realId) {
-        const kbName = kbList.find((knowledgeBase) => knowledgeBase.id === kbId)?.name || '';
-        const formattedConversation = {
-          ...conversation,
-          id: realId,
-          name: conversation.name || conversation.title || defaultTitle,
-          isPinned: false,
-          kbId,
-          kbName,
-          messages: parseMessages(conversation.messages),
-        };
-        setConversations((previous) => [formattedConversation, ...previous]);
-        setCurrentChat(formattedConversation);
+      if (!conversation || !realId) {
+        throw new Error('The server did not return the new conversation.');
       }
+
+      const kbName = kbList.find((knowledgeBase) => knowledgeBase.id === kbId)?.name || '';
+      const formattedConversation = {
+        ...conversation,
+        id: realId,
+        name: conversation.name || conversation.title || defaultTitle,
+        isPinned: false,
+        kbId,
+        kbName,
+        messages: parseMessages(conversation.messages),
+      };
+      setConversations((previous) => [formattedConversation, ...previous]);
+      setCurrentChat(formattedConversation);
+      return true;
     } catch (error) {
       console.error('Failed to create new conversation:', error);
       alert('Failed to create conversation: ' + (error.response?.data?.message || error.message));
+      return false;
     }
   };
 

@@ -37,7 +37,7 @@ function validateWhitelistAddress(req, res) {
 }
 
 router.get('/stats', ...requireAdmin, (req, res) => {
-  runHelper('dump-stats', (error, stdout, stderr) => {
+  runHelper('dump-stats', [], (error, stdout, stderr) => {
     if (error) {
       console.error('[XDP Error] stats:', stderr || error.message);
       return res.status(500).json({ success: false, message: 'XDP not running or map missing.' });
@@ -60,7 +60,7 @@ router.post('/whitelist', ...requireAdmin, (req, res) => {
   const address = validateWhitelistAddress(req, res);
   if (!address) return;
 
-  runHelper(`add-whitelist ${address.bytes.join(' ')}`, (error, stdout, stderr) => {
+  runHelper('add-whitelist', address.bytes, (error, stdout, stderr) => {
     if (error) return respondWithHelperError(res, error, stderr);
     addToDb(address.ip, req.user?.id);
     console.log(`[XDP] ${req.user?.username} added ${address.ip} to whitelist`);
@@ -72,7 +72,7 @@ router.delete('/whitelist', ...requireAdmin, (req, res) => {
   const address = validateWhitelistAddress(req, res);
   if (!address) return;
 
-  runHelper(`del-whitelist ${address.bytes.join(' ')}`, (error, stdout, stderr) => {
+  runHelper('del-whitelist', address.bytes, (error, stdout, stderr) => {
     if (error) return respondWithHelperError(res, error, stderr);
     removeFromDb(address.ip);
     console.log(`[XDP] ${req.user?.username} removed ${address.ip} from whitelist`);
