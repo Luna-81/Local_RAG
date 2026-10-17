@@ -6,6 +6,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const multer = require('multer');
 const { execParser } = require('../services/pythonProcess');
+const { createUploadFilename } = require('../utils/uploadFilename');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
 const FileListModel = require('../models/FileListModel');
@@ -20,15 +21,18 @@ if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 // Multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + '-' + file.originalname);
-  },
+  filename: (req, file, cb) => cb(null, createUploadFilename()),
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 },
+  limits: {
+    fileSize: 50 * 1024 * 1024,
+    files: 1,
+    fields: 10,
+    parts: 11,
+    fieldNameSize: 100,
+  },
   fileFilter: (req, file, cb) => {
     file.mimetype === 'application/pdf'
       ? cb(null, true)

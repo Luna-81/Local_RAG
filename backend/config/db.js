@@ -38,14 +38,21 @@ function createConversationsTable() {
 }
 
 function migrateConversationColumns() {
-  try {
-    db.exec(`ALTER TABLE conversations ADD COLUMN is_pinned INTEGER DEFAULT 0;`);
-  } catch (e) {}
+  const columns = new Set(
+    db
+      .prepare('PRAGMA table_info(conversations)')
+      .all()
+      .map((column) => column.name),
+  );
 
-  try {
+  if (!columns.has('is_pinned')) {
+    db.exec(`ALTER TABLE conversations ADD COLUMN is_pinned INTEGER DEFAULT 0;`);
+  }
+
+  if (!columns.has('kb_id')) {
     db.exec(`ALTER TABLE conversations ADD COLUMN kb_id INTEGER;`);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_conv_kb ON conversations(kb_id);`);
-  } catch (e) {}
+  }
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_conv_kb ON conversations(kb_id);`);
 }
 
 function createFileListTable() {
