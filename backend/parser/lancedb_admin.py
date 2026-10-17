@@ -5,10 +5,10 @@ import json
 import re
 from pathlib import Path
 import lancedb
+from config import KNOWLEDGE_MAP_CACHE_DIR, PROJECT_ROOT, VECTOR_DB_PATH
 
-# Resolve the project root relative to this file.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
+BASE_DIR = str(PROJECT_ROOT)
+DB_PATH = str(VECTOR_DB_PATH)
 
 
 def get_db():
@@ -78,7 +78,7 @@ def delete_document(table_name, stored_name, original_name):
             # LanceDB uses SQL predicates; double apostrophes escape string values.
             table.delete("document_name = '" + name.replace("'", "''") + "'")
 
-    cache_dir = Path(BASE_DIR) / "data" / "knowledge_maps" / table_name
+    cache_dir = KNOWLEDGE_MAP_CACHE_DIR / table_name
     for name in names:
         cache_name = re.sub(r"[^\w.\-]", "_", name) + ".json"
         (cache_dir / cache_name).unlink(missing_ok=True)
