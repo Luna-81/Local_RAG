@@ -7,11 +7,15 @@ Generate Function - Call llama-server API with prompt
 import requests
 import json
 import sys
+from pathlib import Path
 from typing import Optional
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from config import LLAMA_API_URL, LLM_REQUEST_TIMEOUT_SECONDS
 
 
 class LLMGenerator:
-    def __init__(self, api_url: str = "http://localhost:8080/v1/chat/completions"):
+    def __init__(self, api_url: str = LLAMA_API_URL):
         self.api_url = api_url
 
     def generate(
@@ -31,7 +35,10 @@ class LLMGenerator:
             # Keep diagnostic output on stderr so stdout remains machine-readable.
             print("⏳ Sending request to llama-server...", file=sys.stderr)
             response = requests.post(
-                self.api_url, headers=headers, json=payload, timeout=180
+                self.api_url,
+                headers=headers,
+                json=payload,
+                timeout=LLM_REQUEST_TIMEOUT_SECONDS,
             )
             response.raise_for_status()
 
@@ -44,12 +51,15 @@ class LLMGenerator:
 
         except requests.exceptions.ConnectionError:
             print(
-                "Error: Cannot connect to llama-server at http://localhost:8080",
+                f"Error: Cannot connect to llama-server at {self.api_url}",
                 file=sys.stderr,
             )
             return None
         except requests.exceptions.Timeout:
-            print("Error: llama-server request timed out (180s)", file=sys.stderr)
+            print(
+                f"Error: llama-server request timed out ({LLM_REQUEST_TIMEOUT_SECONDS}s)",
+                file=sys.stderr,
+            )
             return None
         except Exception as e:
             print(f"Error calling llama-server: {e}", file=sys.stderr)

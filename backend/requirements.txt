@@ -1,0 +1,9 @@
+# Runtime dependencies for PDF parsing, embeddings, vector search, and maps.
+lancedb
+numpy
+pyarrow
+pypdf
+requests
+scikit-learn
+sentence-transformers
+umap-learn

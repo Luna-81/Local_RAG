@@ -9,7 +9,6 @@ Falls back to "kb_1" when unspecified.
 """
 
 import json
-import os
 import re
 import uuid
 import sys
@@ -17,12 +16,9 @@ from typing import List, Dict, Any
 import lancedb
 import pyarrow as pa
 import numpy as np
+from config import VECTOR_DB_PATH
 
-# Resolve project root dynamically (576project/data/vector_db)
-BASE_DIR = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
-DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "vector_db")
+DEFAULT_DB_PATH = str(VECTOR_DB_PATH)
 
 # Default table name — must match the initial KB created in backend/config/db.js
 DEFAULT_TABLE_NAME = "kb_1"

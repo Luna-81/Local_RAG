@@ -7,14 +7,13 @@ const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const FileListModel = require('../models/FileListModel');
+const { KNOWLEDGE_MAP_CACHE_DIR, PROJECT_ROOT, PYTHON_EXECUTABLE } = require('../config/runtime');
 
 const router = express.Router();
 
-const PROJECT_DIR = path.join(__dirname, '..', '..');
-const PARSER_DIR = path.join(PROJECT_DIR, 'backend', 'parser');
+const PARSER_DIR = path.join(PROJECT_ROOT, 'backend', 'parser');
 const SCRIPT = path.join(PARSER_DIR, 'knowledge_map.py');
-const CACHE_ROOT = path.join(PROJECT_DIR, 'data', 'knowledge_maps');
-const PYTHON = path.join(PROJECT_DIR, 'venv', 'bin', 'python3');
+const CACHE_ROOT = KNOWLEDGE_MAP_CACHE_DIR;
 
 fs.mkdirSync(CACHE_ROOT, { recursive: true });
 
@@ -44,7 +43,7 @@ const cacheFile = (doc, tableName) =>
  */
 function runPython(args, tableName, maxBuffer, cb) {
   execFile(
-    PYTHON,
+    PYTHON_EXECUTABLE,
     [SCRIPT, ...args],
     {
       cwd: PARSER_DIR,

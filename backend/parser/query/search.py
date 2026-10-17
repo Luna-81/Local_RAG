@@ -8,10 +8,11 @@ import json
 from typing import List, Dict
 from core.vector_encoder import VectorEncoder
 from core.vector_store import VectorStore
+from config import VECTOR_DB_PATH
 
 
 class SearchEngine:
-    def __init__(self, db_path: str = "../../data/vector_db/"):
+    def __init__(self, db_path: str = str(VECTOR_DB_PATH)):
         self.encoder = VectorEncoder()
         self.store = VectorStore(db_path=db_path)
 
@@ -23,7 +24,7 @@ class SearchEngine:
 
 
 def search_documents(
-    query: str, top_k: int = 3, db_path: str = "../../data/vector_db/"
+    query: str, top_k: int = 3, db_path: str = str(VECTOR_DB_PATH)
 ) -> List[Dict]:
     engine = SearchEngine(db_path=db_path)
     return engine.search(query, top_k)

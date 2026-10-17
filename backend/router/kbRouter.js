@@ -2,18 +2,16 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const fs = require('fs');
 const { execFile } = require('child_process');
 
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const FileListModel = require('../models/FileListModel');
 const { authenticate, authorize } = require('../middleware/authMiddleware');
 const { USER_TYPES } = require('../config/constants');
+const { PYTHON_EXECUTABLE } = require('../config/runtime');
 
 // Python interpreter / script paths
 const parserDir = path.join(__dirname, '../parser');
-const venvPython = path.resolve(__dirname, '../../venv/bin/python3');
-const pythonExecutable = fs.existsSync(venvPython) ? venvPython : 'python3';
 const LANCEDB_ADMIN = path.join(parserDir, 'lancedb_admin.py');
 
 /**
@@ -23,7 +21,7 @@ const LANCEDB_ADMIN = path.join(parserDir, 'lancedb_admin.py');
 function dropLanceTable(tableName) {
   return new Promise((resolve, reject) => {
     execFile(
-      pythonExecutable,
+      PYTHON_EXECUTABLE,
       [LANCEDB_ADMIN, 'clear', tableName],
       { cwd: parserDir },
       (err, stdout, stderr) => {

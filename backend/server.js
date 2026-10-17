@@ -1,6 +1,7 @@
 // backend/server.js
 const express = require('express');
 const cors = require('cors');
+const { API_HOST, API_PORT } = require('./config/runtime');
 
 const { initDatabase } = require('./config/db');
 
@@ -15,8 +16,6 @@ const { auditLogger } = require('./middleware/auditMiddleware');
 const xdpRouter = require('./router/xdpRouter');
 
 const app = express();
-const PORT = 3000;
-
 app.use(cors());
 app.use(express.json());
 app.use(auditLogger);
@@ -56,9 +55,9 @@ app.get('/health', (req, res) => {
 
 app.use('/api/xdp', xdpRouter);
 
-app.listen(PORT, () => {
+app.listen(API_PORT, API_HOST, () => {
   console.log('========================================');
-  console.log(`Server running: http://localhost:${PORT}`);
+  console.log(`Server running: http://${API_HOST}:${API_PORT}`);
   console.log('Database connected & architecture modularized');
   console.log('========================================');
 });

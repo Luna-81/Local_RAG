@@ -18,17 +18,16 @@ except ImportError:
     HAS_UMAP = False
 
 from query.generate import generate_answer
+from config import KNOWLEDGE_MAP_CACHE_DIR, VECTOR_DB_PATH
 
 # ── path ─────────────────────────────────────────────
-PARSER_DIR = Path(__file__).resolve().parent
-PROJECT_DIR = PARSER_DIR.parents[1]  # ~/576project
-VECTOR_DB = PROJECT_DIR / "data" / "vector_db"
+VECTOR_DB = VECTOR_DB_PATH
 
 # Multi-KB: table name from env, default to the initial KB table
 TABLE_NAME = os.environ.get("KB_TABLE", "kb_1")
 
 # Cache is namespaced per KB to avoid filename collisions across KBs
-CACHE_DIR = PROJECT_DIR / "data" / "knowledge_maps" / TABLE_NAME
+CACHE_DIR = KNOWLEDGE_MAP_CACHE_DIR / TABLE_NAME
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 DOC_FIELD = "document_name"

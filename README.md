@@ -22,7 +22,7 @@ Local RAG is a self-hosted PDF question-answering workspace. It turns uploaded P
 | `xdp/` | XDP/eBPF program |
 | `data/` | Local uploads, database, vector indexes, model files, and generated maps |
 
-The backend serves its API on port `3000`. The frontend development server proxies `/api` to the backend. `llama-server` serves the model on port `8080`.
+The backend serves its API on port `3000` by default. The frontend development server reads the same `API_PORT` from `backend/.env` and proxies `/api` and `/health` to it. `llama-server` serves the model on port `8080` by default.
 
 ## Requirements
 
@@ -38,7 +38,7 @@ From the repository root, install the JavaScript and Python dependencies:
 npm --prefix backend ci
 npm --prefix frontend ci
 python3 -m venv venv
-./venv/bin/python3 -m pip install lancedb numpy pyarrow pypdf requests scikit-learn sentence-transformers umap-learn
+./venv/bin/python3 -m pip install -r backend/requirements.txt
 ```
 
 Create the backend environment file:
@@ -50,11 +50,19 @@ openssl rand -hex 32
 
 Put the generated value after `JWT_SECRET=` in `backend/.env`. The secret must be at least 32 bytes and should remain the same across restarts. On a new database, also set `INITIAL_ADMIN_PASSWORD` to a password of at least 12 characters and at most 72 bytes. The initial username is `admin`; additional users are created in Admin Panel.
 
+Review the other settings in `backend/.env.example` before starting the project. Relative data, model, Python, and llama.cpp paths are resolved from the repository root. `PYTHON_EXECUTABLE` defaults to `venv/bin/python3` when present and otherwise uses `python3`. Install optional formatting tools with `python3 -m pip install -r backend/requirements-dev.txt`.
+
 `backend/.env` is ignored by Git. Keep it private.
 
 ## Run
 
-Start the model server, backend, and frontend in separate terminals:
+To start all three services with the project script, configure `LLAMA_SERVER_BIN` and `LLAMA_MODEL_PATH` in `backend/.env`, then run:
+
+```bash
+./start_all.sh
+```
+
+Logs and per-user process IDs are stored under the runtime temporary directory. Stop only the services started by this script with `./stop_all.sh`. Alternatively, start each service in a separate terminal:
 
 ```bash
 # Terminal 1: use the paths for your local llama.cpp build and model.
@@ -73,7 +81,7 @@ cd frontend
 npm start
 ```
 
-Open the frontend URL printed in its terminal, typically `http://localhost:3001` when the backend already occupies port `3000`. The backend health endpoint is `http://localhost:3000/health`.
+Open the frontend URL printed in its terminal, typically `http://localhost:3001`. The backend health endpoint is `http://localhost:3000/health` by default. Set `API_PORT` and `FRONTEND_PORT` in `backend/.env` to change the ports.
 
 ## Roles and sessions
 

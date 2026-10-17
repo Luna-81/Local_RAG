@@ -2,16 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const fs = require('fs');
 const { spawn } = require('child_process');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const { authenticate } = require('../middleware/authMiddleware');
+const { PYTHON_EXECUTABLE, QA_PROCESS_TIMEOUT_MS } = require('../config/runtime');
 
 const parserDir = path.join(__dirname, '../parser');
 const ASK_SCRIPT = path.join(parserDir, 'ask.py');
-
-const venvPythonPath = path.resolve(__dirname, '../../venv/bin/python3');
-const pythonExecutable = fs.existsSync(venvPythonPath) ? venvPythonPath : 'python3';
 
 /**
  * POST /api/qa/ask
@@ -36,7 +33,7 @@ router.post('/ask', authenticate, async (req, res) => {
 
   console.log(`[QA Router] KB=${kb.name} (${kbTable}) | Q="${question.substring(0, 50)}..."`);
 
-  const askProcess = spawn(pythonExecutable, [ASK_SCRIPT, question], {
+  const askProcess = spawn(PYTHON_EXECUTABLE, [ASK_SCRIPT, question], {
     cwd: parserDir,
     env: {
       ...process.env,
@@ -81,7 +78,7 @@ router.post('/ask', authenticate, async (req, res) => {
     if (!res.headersSent) {
       res.status(504).json({ success: false, message: 'Request timeout' });
     }
-  }, 60000);
+  }, QA_PROCESS_TIMEOUT_MS);
 
   askProcess.on('close', (code) => {
     clearTimeout(timeout);
