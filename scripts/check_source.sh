@@ -6,11 +6,11 @@ cd "$PROJECT_ROOT"
 
 javascript_files=()
 while IFS= read -r source_file; do
-    javascript_files+=("$source_file")
+  javascript_files+=("$source_file")
 done < <(rg --files backend frontend/src -g '*.js')
 
 for source_file in "${javascript_files[@]}"; do
-    node --check "$source_file"
+  node --check "$source_file"
 done
 echo "JavaScript syntax OK: ${#javascript_files[@]} files"
 

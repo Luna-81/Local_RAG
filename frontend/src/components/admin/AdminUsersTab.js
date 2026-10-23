@@ -29,6 +29,7 @@ export default function AdminUsersTab({ users, onCreate, onEdit, onDelete, onCha
                 <td>{new Date(user.created_at).toLocaleString()}</td>
                 <td>
                   <select
+                    className="admin-permission-select"
                     value={user.user_type}
                     onChange={(event) => onChangeType(user.id, event.target.value)}
                   >

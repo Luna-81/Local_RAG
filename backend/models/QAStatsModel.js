@@ -17,10 +17,10 @@ class QAStatsModel {
     return db
       .prepare(
         `
-            SELECT qa_stats.id, qa_stats.question, qa_stats.created_at, users.username 
-            FROM qa_stats 
-            JOIN users ON qa_stats.user_id = users.id 
-            ORDER BY qa_stats.created_at DESC 
+            SELECT qa_stats.id, qa_stats.question, qa_stats.created_at, users.username
+            FROM qa_stats
+            JOIN users ON qa_stats.user_id = users.id
+            ORDER BY qa_stats.created_at DESC
             LIMIT ?
         `,
       )

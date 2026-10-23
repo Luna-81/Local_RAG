@@ -27,23 +27,23 @@ struct {
 struct {
     __uint(type, BPF_MAP_TYPE_HASH);
     __uint(max_entries, WHITELIST_MAX);
-    __type(key, __u32);   // IPv4 address in network byte order.
-    __type(value, __u8);  // 1 means the address is allowlisted.
+    __type(key, __u32); // IPv4 address in network byte order.
+    __type(value, __u8); // 1 means the address is allowlisted.
 } whitelist_map SEC(".maps");
 
 // Map 3: cumulative packets dropped for each source IPv4 address.
-struct{
-    __uint(type,BPF_MAP_TYPE_LRU_HASH);
-    __uint(max_entries,10240);
-    __type(key,__u32);
-    __type(value,__u64);
-}drop_by_ip SEC(".maps");
+struct {
+    __uint(type, BPF_MAP_TYPE_LRU_HASH);
+    __uint(max_entries, 10240);
+    __type(key, __u32);
+    __type(value, __u64);
+} drop_by_ip SEC(".maps");
 
 // Main XDP packet filter.
 SEC("xdp")
 int xdp_guardian_prog(struct xdp_md *ctx) {
     void *data_end = (void *)(long)ctx->data_end;
-    void *data     = (void *)(long)ctx->data;
+    void *data = (void *)(long)ctx->data;
 
     struct iphdr *iph;
     struct ethhdr *eth = data;
@@ -72,7 +72,9 @@ int xdp_guardian_prog(struct xdp_md *ctx) {
     // Allow traffic from whitelisted addresses.
     __u8 *white = bpf_map_lookup_elem(&whitelist_map, &src_ip);
     if (white && *white == 1) {
-        if (stats) __sync_fetch_and_add(&stats->passed_total, 1);
+        if (stats) {
+            __sync_fetch_and_add(&stats->passed_total, 1);
+        }
         return XDP_PASS;
     }
 
@@ -96,13 +98,13 @@ int xdp_guardian_prog(struct xdp_md *ctx) {
         }
     }
 
-    // per-ip count 
+    // per-ip count
     __u64 *cnt = bpf_map_lookup_elem(&drop_by_ip, &src_ip);
-    if(cnt){
-        __sync_fetch_and_add(cnt,1);
-    }else{
+    if (cnt) {
+        __sync_fetch_and_add(cnt, 1);
+    } else {
         __u64 one = 1;
-        bpf_map_update_elem(&drop_by_ip,&src_ip,&one, BPF_ANY);
+        bpf_map_update_elem(&drop_by_ip, &src_ip, &one, BPF_ANY);
     }
 
     return XDP_DROP;

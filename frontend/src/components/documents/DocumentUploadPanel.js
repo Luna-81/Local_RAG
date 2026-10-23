@@ -154,7 +154,7 @@ export default function DocumentUploadPanel({ hasKnowledgeBase, onUpload }) {
           type="button"
           onClick={handleUpload}
           disabled={!selectedFile || uploading || !hasKnowledgeBase}
-          className="btn-primary btn-block document-upload-button"
+          className={`btn-primary btn-block document-upload-button${uploading ? ' is-uploading' : ''}`}
         >
           {uploadLabel}
         </button>

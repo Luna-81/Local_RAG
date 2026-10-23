@@ -13,6 +13,7 @@ const FileListModel = require('../models/FileListModel');
 const KnowledgeBaseModel = require('../models/KnowledgeBaseModel');
 const { getUserId } = require('../utils/reqUser');
 const { UPLOAD_DIR, VECTORIZE_TIMEOUT_MS } = require('../config/runtime');
+const { MAX_UPLOAD_SIZE_BYTES, acceptPdfUpload } = require('../utils/uploadPolicy');
 
 // Upload directory
 const uploadDir = UPLOAD_DIR;
@@ -27,17 +28,13 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 50 * 1024 * 1024,
+    fileSize: MAX_UPLOAD_SIZE_BYTES,
     files: 1,
     fields: 10,
     parts: 11,
     fieldNameSize: 100,
   },
-  fileFilter: (req, file, cb) => {
-    file.mimetype === 'application/pdf'
-      ? cb(null, true)
-      : cb(new Error('Only PDF files are allowed.'));
-  },
+  fileFilter: (req, file, cb) => acceptPdfUpload(file, cb),
 });
 
 function removeTemporaryUpload(filePath) {

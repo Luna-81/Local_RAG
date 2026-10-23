@@ -15,6 +15,7 @@ class ConversationModel {
                 title = excluded.title,
                 messages = excluded.messages,
                 updated_at = CURRENT_TIMESTAMP
+            WHERE conversations.user_id = excluded.user_id
         `);
     return stmt.run(id, userId, title, messagesJson, kbId);
   }

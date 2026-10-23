@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+import './css/global.css';
 import Navbar from './components/common/Navbar';
 import Login from './pages/Login';
 import { ALL_ROUTES } from './config/routes';

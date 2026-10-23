@@ -35,11 +35,16 @@ const Login = ({ onLogin }) => {
   return (
     <div className="login-container">
       <div className="login-card">
+        <div className="login-mark" aria-hidden="true">
+          S
+        </div>
+        <p className="login-eyebrow">SECURE WORKSPACE</p>
         <h2>System Access</h2>
+        <p className="login-description">Sign in to continue to your knowledge workspace.</p>
         {error && <div className="error-banner">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="login-form-group">
             <label htmlFor="username">Username</label>
             <input
               id="username"
@@ -51,7 +56,7 @@ const Login = ({ onLogin }) => {
             />
           </div>
 
-          <div className="form-group">
+          <div className="login-form-group">
             <label htmlFor="password">Password</label>
             <input
               id="password"

@@ -4,7 +4,7 @@ import { getKnowledgeMapApi, buildKnowledgeMapApi } from '../../api/knowledgeApi
 import '../../css/KnowledgeMap.css';
 
 const W = 720,
-  H = 460,
+  H = 400,
   PAD = 44;
 
 const KnowledgeMap = ({ docName, displayName, kbId }) => {
@@ -71,7 +71,7 @@ const KnowledgeMap = ({ docName, displayName, kbId }) => {
                   cx={cx}
                   cy={cy}
                   r={on ? 3.5 : 2.5}
-                  fill={on ? '#1d4ed8' : '#cbd5e1'}
+                  fill={on ? 'var(--primary-hover)' : 'var(--border-color)'}
                   opacity={selected == null || on ? 1 : 0.3}
                 />
               );
@@ -85,7 +85,7 @@ const KnowledgeMap = ({ docName, displayName, kbId }) => {
                     cx={cx}
                     cy={cy}
                     r={on ? 13 : 10}
-                    fill={on ? '#1d4ed8' : '#60a5fa'}
+                    fill={on ? 'var(--primary-hover)' : 'var(--primary-color)'}
                     stroke="#fff"
                     strokeWidth={2}
                   />
