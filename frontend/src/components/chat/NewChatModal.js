@@ -34,6 +34,7 @@ function NewChatModal({ kbList = [], onClose, onCreate }) {
             <div className="kb-field">
               <label>Knowledge base</label>
               <select
+                className="kb-select"
                 value={selected || ''}
                 onChange={(e) => setSelected(Number(e.target.value))}
                 disabled={busy}

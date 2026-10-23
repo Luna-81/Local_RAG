@@ -1,6 +1,6 @@
 .km-wrap {
   margin-top: 32px;
-  border-top: 2px solid #e2e8f0;
+  border-top: 2px solid var(--border-color);
   padding-top: 24px;
 }
 .km-toolbar {
@@ -13,11 +13,11 @@
 .km-toolbar h3 {
   margin: 0;
   font-size: 16px;
-  color: #1e293b;
+  color: var(--text-main);
 }
 .km-docname {
   font-weight: 400;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 14px;
   word-break: break-all;
 }
@@ -25,7 +25,7 @@
   padding: 8px 16px;
   border: none;
   border-radius: 8px;
-  background: #2563eb;
+  background: var(--primary-color);
   color: #fff;
   cursor: pointer;
   font-size: 13px;
@@ -33,10 +33,10 @@
   white-space: nowrap;
 }
 .km-toolbar button:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--primary-hover);
 }
 .km-toolbar button:disabled {
-  background: #94a3b8;
+  background: var(--text-muted);
   cursor: not-allowed;
 }
 
@@ -48,8 +48,8 @@
 .km-svg {
   width: 100%;
   height: auto;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #fff;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
 }
 .km-node {
@@ -57,36 +57,99 @@
   transition: all 0.15s;
 }
 .km-node:hover circle {
-  fill: #1d4ed8;
+  fill: var(--primary-hover);
 }
 
 .km-detail {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 18px;
   min-height: 220px;
   background: #fff;
 }
 .km-hint {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 13px;
   margin: 0;
 }
 .km-card h4 {
   margin: 0 0 10px;
   font-size: 15px;
-  color: #1e293b;
+  color: var(--text-main);
   font-weight: 600;
 }
 .km-card p {
   margin: 0 0 12px;
   font-size: 13px;
   line-height: 1.65;
-  color: #475569;
+  color: var(--text-muted);
 }
 .km-meta {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
   padding-top: 10px;
-  border-top: 1px dashed #e2e8f0;
+  border-top: 1px dashed var(--border-color);
+}
+
+.km-wrap {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.km-toolbar h3 {
+  color: var(--text-main);
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.km-toolbar button {
+  min-height: 38px;
+  border-radius: 10px;
+  background: var(--primary-color);
+  font-weight: 700;
+}
+
+.km-toolbar button:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.km-svg {
+  border-color: var(--border-color);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.km-detail {
+  border-color: var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.km-card h4 {
+  color: var(--brand-deep);
+  font-size: 16px;
+}
+
+.km-meta {
+  border-color: var(--border-color);
+}
+
+@media (max-width: 900px) {
+  .km-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .km-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .km-docname {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+  }
 }

@@ -50,7 +50,7 @@ openssl rand -hex 32
 
 Put the generated value after `JWT_SECRET=` in `backend/.env`. The secret must be at least 32 bytes and should remain the same across restarts. On a new database, also set `INITIAL_ADMIN_PASSWORD` to a password of at least 12 characters and at most 72 bytes. The initial username is `admin`; additional users are created in Admin Panel.
 
-Review the other settings in `backend/.env.example` before starting the project. Relative data, model, Python, and llama.cpp paths are resolved from the repository root. `PYTHON_EXECUTABLE` defaults to `venv/bin/python3` when present and otherwise uses `python3`. Install optional formatting tools with `python3 -m pip install -r backend/requirements-dev.txt`.
+Review the other settings in `backend/.env.example` before starting the project. Relative data, model, Python, and llama.cpp paths are resolved from the repository root. `PYTHON_EXECUTABLE` defaults to `venv/bin/python3` when present and otherwise uses `python3`. Install optional Python formatting tools with `./venv/bin/python3 -m pip install -r backend/requirements-dev.txt`.
 
 `backend/.env` is ignored by Git. Keep it private.
 
@@ -110,3 +110,34 @@ dependencies from `backend/requirements.txt` to be installed in the active Pytho
 environment.
 If the embedding model is already cached locally and you want to avoid
 network access, run `export EMBED_OFFLINE=1` before starting the backend.
+
+## Code style
+
+The root `.editorconfig` defines UTF-8 encoding, LF line endings, a final newline,
+and no trailing whitespace. JavaScript, CSS, and Shell use two-space indentation;
+Python and C use four spaces. Follow the surrounding naming and brace conventions
+when editing source files.
+
+Prettier uses single quotes, semicolons, trailing commas, and a preferred line
+width of 100. Black uses a line length of 88 and targets Python 3.12. Run these
+format checks from the repository root:
+
+```bash
+npm --prefix frontend run format:check
+./frontend/node_modules/.bin/prettier --check 'tests/backend/node/*.test.js'
+./venv/bin/python3 -m black --check backend/parser tests/backend/python
+```
+
+To apply formatting:
+
+```bash
+npm --prefix frontend run format
+./frontend/node_modules/.bin/prettier --write 'tests/backend/node/*.test.js'
+./venv/bin/python3 -m black backend/parser tests/backend/python
+```
+
+The npm formatting scripts cover backend JavaScript, frontend JavaScript and CSS,
+and selected configuration files; the separate commands cover the Node.js and
+Python tests. Review C and Shell formatting manually against `.editorconfig`.
+Keep formatting changes scoped to project source and configuration files; exclude
+dependencies, generated files, and local data.

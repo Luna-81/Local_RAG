@@ -171,13 +171,20 @@ router.post('/send', (req, res) => {
   try {
     const messagesArray = Array.isArray(messages) ? messages : [];
 
-    ConversationModel.save(
+    const saveResult = ConversationModel.save(
       conversationId,
       userId,
       title || 'New Conversation',
       messagesArray,
       kbId ? Number(kbId) : null,
     );
+
+    if (saveResult.changes === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Conversation not found or unauthorized.',
+      });
+    }
 
     if (question) {
       QAStatsModel.record(userId, question);

@@ -75,7 +75,7 @@ const LanceDBManager = () => {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container lancedb-manager">
       <h2>Vector Storage Governance</h2>
 
       {error && <div className="error-banner">{error}</div>}
@@ -97,101 +97,113 @@ const LanceDBManager = () => {
         </div>
       )}
 
-      <h3>Data Tables</h3>
-      <div className="table-wrapper">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Table Name</th>
-              <th>Item Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats?.tables?.length === 0 ? (
-              <tr>
-                <td colSpan="2" className="utility-cell-centered">
-                  No data tables found.
-                </td>
-              </tr>
-            ) : (
-              stats?.tables?.map((tbl) => (
-                <tr key={tbl.name}>
-                  <td>
-                    {tbl.kbName ? (
-                      <>
-                        <span className="lancedb-kb-name">{tbl.kbName}</span>
-                        <span className="lancedb-table-name">({tbl.name})</span>
-                      </>
-                    ) : (
-                      tbl.name
-                    )}
-                  </td>
-                  <td>{tbl.vector_count}</td>
+      <div className="lancedb-overview-grid">
+        <section className="lancedb-panel" aria-labelledby="lancedb-tables-heading">
+          <div className="lancedb-panel-heading">
+            <h3 id="lancedb-tables-heading">Data Tables</h3>
+            <span className="lancedb-panel-count">{stats?.tables?.length || 0} tables</span>
+          </div>
+          <div className="table-wrapper">
+            <table className="admin-table lancedb-compact-table">
+              <thead>
+                <tr>
+                  <th>Table Name</th>
+                  <th>Item Count</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* KB selector + Documents */}
-      <div className="lancedb-documents-header">
-        <h3 className="lancedb-section-heading">Documents in Index</h3>
-
-        <label className="lancedb-kb-label">Knowledge base:</label>
-        <select
-          value={kbId || ''}
-          onChange={(e) => setKbId(Number(e.target.value))}
-          disabled={kbList.length === 0}
-          className="lancedb-kb-select"
-        >
-          {kbList.length === 0 && <option value="">(none)</option>}
-          {kbList.map((kb) => (
-            <option key={kb.id} value={kb.id}>
-              {kb.name} ({kb.tableName})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="table-wrapper lancedb-documents-table">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Document Name</th>
-              <th>Chunks</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {docs.length === 0 ? (
-              <tr>
-                <td colSpan="3" className="utility-cell-centered">
-                  No documents found.
-                </td>
-              </tr>
-            ) : (
-              docs.map((d) => {
-                const name = d.document_name;
-                const on = selectedDoc === name;
-                return (
-                  <tr key={name} className={on ? 'lancedb-selected-row' : undefined}>
-                    <td className="utility-break-word">{d.display_name || name}</td>
-                    <td>{d.chunk_count}</td>
-                    <td>
-                      <button
-                        className={on ? 'btn-danger' : ''}
-                        onClick={() => setSelectedDoc(on ? null : name)}
-                      >
-                        {on ? 'Deselect' : 'Select'}
-                      </button>
+              </thead>
+              <tbody>
+                {stats?.tables?.length === 0 ? (
+                  <tr>
+                    <td colSpan="2" className="utility-cell-centered">
+                      No data tables found.
                     </td>
                   </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                ) : (
+                  stats?.tables?.map((tbl) => (
+                    <tr key={tbl.name}>
+                      <td className="lancedb-table-cell">
+                        {tbl.kbName ? (
+                          <>
+                            <span className="lancedb-kb-name">{tbl.kbName}</span>
+                            <span className="lancedb-table-name">({tbl.name})</span>
+                          </>
+                        ) : (
+                          tbl.name
+                        )}
+                      </td>
+                      <td>{tbl.vector_count}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="lancedb-panel" aria-labelledby="lancedb-documents-heading">
+          <div className="lancedb-panel-heading lancedb-documents-toolbar">
+            <div className="lancedb-panel-title">
+              <h3 id="lancedb-documents-heading">Documents in Index</h3>
+              <span className="lancedb-panel-count">{docs.length} documents</span>
+            </div>
+            <label className="lancedb-kb-control">
+              <span>Knowledge base</span>
+              <select
+                value={kbId || ''}
+                onChange={(e) => setKbId(Number(e.target.value))}
+                disabled={kbList.length === 0}
+                className="lancedb-kb-select"
+              >
+                {kbList.length === 0 && <option value="">(none)</option>}
+                {kbList.map((kb) => (
+                  <option key={kb.id} value={kb.id}>
+                    {kb.name} ({kb.tableName})
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="table-wrapper lancedb-documents-table">
+            <table className="admin-table lancedb-compact-table">
+              <thead>
+                <tr>
+                  <th>Document Name</th>
+                  <th>Chunks</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {docs.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" className="utility-cell-centered">
+                      No documents found.
+                    </td>
+                  </tr>
+                ) : (
+                  docs.map((d) => {
+                    const name = d.document_name;
+                    const on = selectedDoc === name;
+                    return (
+                      <tr key={name} className={on ? 'lancedb-selected-row' : undefined}>
+                        <td className="utility-break-word">{d.display_name || name}</td>
+                        <td>{d.chunk_count}</td>
+                        <td>
+                          <button
+                            className={on ? 'btn-danger' : ''}
+                            onClick={() => setSelectedDoc(on ? null : name)}
+                          >
+                            {on ? 'Deselect' : 'Select'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
 
       {/* Knowledge map for current selection */}
