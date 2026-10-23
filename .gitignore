@@ -41,6 +41,12 @@ xdp/xdp_guardian
 *.swp
 .DS_Store
 
+# --- Local formatting configuration ---
+/.editorconfig
+/.prettierignore
+/.prettierrc.json
+/pyproject.toml
+
 # --- Logs ---
 *.log
 

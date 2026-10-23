@@ -4,7 +4,7 @@ const { db } = require('../config/db');
 const { hexArrayToIp, ipToHexArray } = require('../utils/xdpAddress');
 const { calculateDropDelta, parseStats } = require('../utils/xdpMetrics');
 
-const HELPER = path.join(__dirname, '..', '..', 'xdp-helper.sh');
+const HELPER = path.join(__dirname, '..', '..', 'scripts', 'xdp-helper.sh');
 
 function runHelper(command, args, callback) {
   execFile(

@@ -1,7 +1,7 @@
 #!/bin/bash
 BPFTOOL=/usr/local/bin/bpftool-core
 IFACE=${IFACE:-eth0}
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # find the latest ID of the map
 find_map_id() {
@@ -25,10 +25,10 @@ case "$1" in
     sudo ip link set dev "$IFACE" xdp off 2>/dev/null
 
     echo "Rebuilding..."
-    (cd "$SCRIPT_DIR/xdp" && make clean && make) || exit 1
+    (cd "$PROJECT_ROOT/xdp" && make clean && make) || exit 1
 
     echo "Attaching in generic mode..."
-    sudo ip link set dev "$IFACE" xdpgeneric obj "$SCRIPT_DIR/xdp/xdp_guardian.o" sec xdp || exit 1
+    sudo ip link set dev "$IFACE" xdpgeneric obj "$PROJECT_ROOT/xdp/xdp_guardian.o" sec xdp || exit 1
 
     echo "Verifying:"
     ip link show "$IFACE" | grep xdp
@@ -37,7 +37,7 @@ case "$1" in
   "dump-stats")
     ID=$(find_map_id global_stats)
     [ -z "$ID" ] && {
-      echo '{"error": "global_stats not found. Run: ./xdp-helper.sh reload"}' >&2
+      echo '{"error": "global_stats not found. Run: ./scripts/xdp-helper.sh reload"}' >&2
       exit 1
     }
     exec $BPFTOOL map dump id "$ID" -j
@@ -46,7 +46,7 @@ case "$1" in
   "dump-whitelist")
     ID=$(find_map_id whitelist_map)
     [ -z "$ID" ] && {
-      echo '{"error": "whitelist_map not found. Run: ./xdp-helper.sh reload"}' >&2
+      echo '{"error": "whitelist_map not found. Run: ./scripts/xdp-helper.sh reload"}' >&2
       exit 1
     }
     exec $BPFTOOL map dump id "$ID" -j
@@ -55,7 +55,7 @@ case "$1" in
   "dump-drop-by-ip")
     ID=$(find_map_id drop_by_ip)
     [ -z "$ID" ] && {
-      echo '{"error": "drop_by_ip not found. Run: ./xdp-helper.sh reload"}' >&2
+      echo '{"error": "drop_by_ip not found. Run: ./scripts/xdp-helper.sh reload"}' >&2
       exit 1
     }
     exec $BPFTOOL map dump id "$ID" -j

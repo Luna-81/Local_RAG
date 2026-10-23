@@ -2,7 +2,7 @@
 # Start the local model server, API, and React development server.
 set -Eeuo pipefail
 
-PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$PROJECT_ROOT/backend/.env"
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/576project-${UID}"
 mkdir -p "$RUNTIME_DIR"

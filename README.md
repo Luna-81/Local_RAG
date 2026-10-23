@@ -20,6 +20,7 @@ Local RAG is a self-hosted PDF question-answering workspace. It turns uploaded P
 | `backend/` | Express API, authentication, SQLite models, and Python integration |
 | `backend/parser/` | PDF extraction, embeddings, retrieval, answer generation, and knowledge maps |
 | `xdp/` | XDP/eBPF program |
+| `scripts/` | Service startup and shutdown, XDP management, and source checks |
 | `data/` | Local uploads, database, vector indexes, model files, and generated maps |
 
 The backend serves its API on port `3000` by default. The frontend development server reads the same `API_PORT` from `backend/.env` and proxies `/api` and `/health` to it. `llama-server` serves the model on port `8080` by default.
@@ -59,10 +60,10 @@ Review the other settings in `backend/.env.example` before starting the project.
 To start all three services with the project script, configure `LLAMA_SERVER_BIN` and `LLAMA_MODEL_PATH` in `backend/.env`, then run:
 
 ```bash
-./start_all.sh
+./scripts/start_all.sh
 ```
 
-Logs and per-user process IDs are stored under the runtime temporary directory. Stop only the services started by this script with `./stop_all.sh`. Alternatively, start each service in a separate terminal:
+Logs and per-user process IDs are stored under the runtime temporary directory. Stop only the services started by this script with `./scripts/stop_all.sh`. Alternatively, start each service in a separate terminal:
 
 ```bash
 # Terminal 1: use the paths for your local llama.cpp build and model.

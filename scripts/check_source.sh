@@ -25,5 +25,5 @@ for source_file in files:
 print(f"Python syntax OK: {len(files)} files")
 PY
 
-bash -n start_all.sh stop_all.sh xdp-helper.sh scripts/check_source.sh
+bash -n scripts/start_all.sh scripts/stop_all.sh scripts/xdp-helper.sh scripts/check_source.sh
 echo "Shell syntax OK: 4 files"
