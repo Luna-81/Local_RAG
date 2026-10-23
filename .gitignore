@@ -2,6 +2,11 @@
 node_modules/
 venv/
 3rdparty/
+frontend/.pnp
+frontend/**/.pnp.js
+
+# --- Test outputs ---
+frontend/coverage/
 
 # --- Python ---
 __pycache__/
@@ -34,6 +39,9 @@ xdp/xdp_guardian
 # --- Env / secrets ---
 .env
 .env.local
+frontend/**/.env.development.local
+frontend/**/.env.test.local
+frontend/**/.env.production.local
 
 # --- Editor / OS ---
 .vscode/
@@ -49,6 +57,9 @@ xdp/xdp_guardian
 
 # --- Logs ---
 *.log
+frontend/**/npm-debug.log*
+frontend/**/yarn-debug.log*
+frontend/**/yarn-error.log*
 
 # Local submission documentation; include it manually in the teacher's archive.
 docs/

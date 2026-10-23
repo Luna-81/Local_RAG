@@ -84,6 +84,21 @@ npm start
 
 Open the frontend URL printed in its terminal, typically `http://localhost:3001`. The backend health endpoint is `http://localhost:3000/health` by default. Set `API_PORT` and `FRONTEND_PORT` in `backend/.env` to change the ports.
 
+## Frontend development
+
+The React frontend was bootstrapped with Create React App and uses `react-scripts`.
+Run these commands from the repository root when working on the frontend separately:
+
+| Command | Purpose |
+| --- | --- |
+| `PORT=3001 npm --prefix frontend start` | Start the development server with automatic reload |
+| `npm --prefix frontend test` | Open the frontend test runner in watch mode |
+| `npm --prefix frontend run build` | Create an optimized production build in `frontend/build/` |
+
+The development server proxies `/api` and `/health` to the backend using `API_PORT`
+from `backend/.env`; start the API separately for features that require server data.
+The production build contains generated files and is excluded from Git.
+
 ## Roles and sessions
 
 | Role | Available pages |
